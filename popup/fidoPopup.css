@@ -1,0 +1,16 @@
+html, body {
+  width: 100px;
+}
+
+.launch {
+  margin: 3% auto;
+  padding: 4px;
+  text-align: center;
+  font-size: 1em;
+  background-color: #E5F2F2;
+  cursor: pointer;
+}
+
+.launch:hover {
+  background-color: #CFF2F2;
+}
