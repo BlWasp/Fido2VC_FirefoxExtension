@@ -13,7 +13,7 @@ function onGot(item) {
 }
 
 /*
-	The Service Provider give a JSON-LD structure with the wanted attributs and the context
+	The Service Provider give a JSON structure with the wanted attributs and the context
 	The value of the attributs is empty
 	This function recovers the empty attributs
 */
@@ -31,7 +31,7 @@ function getEmptyField(url) {
 }
 
 /*
-	A solution to parse the different JSON-LD structure in the database
+	A solution to parse the different JSON structure in the database
 	After parsing, just take the needed attributs
 */
 function parser(struct) {
@@ -42,6 +42,6 @@ function parser(struct) {
 /*
 	Fill the structure sends by the SP with the values found with the parser
 */
-function fillFields() {
-	localStruct.then()
-}
+// function fillFields() {
+// 	localStruct.then()
+// }
