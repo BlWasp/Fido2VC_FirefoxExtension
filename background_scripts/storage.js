@@ -17,12 +17,12 @@
 /*
 	Default test JWT structure with proof
 */
-{
+var header = {
     "alg": "RS256",
     "typ": "JWT",
     "kid": "did:example:abfe13f712120431c276e12ecab#keys-1"
-}
-{
+};
+var data = {
   "sub": "did:example:ebfeb1f712ebc6f1c276e12ec21",
   "jti": "http://example.edu/credentials/3732",
   "iss": "did:example:abfe13f712120431c276e12ecab",
@@ -42,7 +42,7 @@
       }
     }
   }
-}
+};
 
 /*
 	Error logger
@@ -92,7 +92,53 @@ function checkSettings(settings) {
 	}
 }
 
-getStruct('https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json');
-const getStructFromLocal = browser.storage.local.get();
-getStructFromLocal.then(checkSettings, onError);
+// getStruct('https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json');
+// const getStructFromLocal = browser.storage.local.get();
+// getStructFromLocal.then(checkSettings, onError);
 // getStruc.then(onGot, onError);
+
+
+
+/*
+	This section is NOT a final implementation or what so ever so.
+	It's just a test section for message signing and verification.
+	Result of this test will be use in real implementation with parsing in chechStructValidity()
+*/
+(() => {
+	let signature;
+
+	var encMess;
+	function getMessageEncoding() {
+	  // const messageBox = document.querySelector(".hmac #message");
+	  let message = "Message de test";
+	  let enc = new TextEncoder();
+	  encMess = enc.encode(message);
+	}
+
+	async function signMessage(key) {
+		getMessageEncoding();
+		let encoded = encMess;
+		signature = await window.crypto.subtle.sign("HMAC",key,encoded);
+		let result = await window.crypto.subtle.verify("HMAC", key, signature, encoded);
+		console.log(result);
+	}
+
+	async function verifyMessage(key) {
+		getMessageEncoding();
+		let encoded = encMess;
+		console.log(signature);
+		let result = await window.crypto.subtle.verify("HMAC", key, signature, encoded);
+	}
+
+	window.crypto.subtle.generateKey(
+	 	{
+	    	name: "HMAC",
+	    	hash: {name: "SHA-256"}
+	  	},
+	  	true,
+	  	["sign", "verify"]
+	).then((key) => {
+		signMessage(key);
+		// verifyMessage(key);
+	});
+})();
