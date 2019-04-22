@@ -76,12 +76,38 @@ function getStruct(url) {
 }
 
 /*
+	Encode the JWT structure with signature validity purpose
+*/
+var encStruct;
+function getStructEncoding(struct) {
+	let enc = new TextEncoder();
+	encStruct = enc.encode(struct);
+}
+/*
 	When a new JSON-LD or JWT structure is received this function check the validity with the proof
 	Also check de expiration validity
 */
-function checkStrucValidity() {
-
+function checkStrucValidity(key,signature) {
+	let concat = JSON.stringify(header).concat(JSON.stringify(data));
+	getStructEncoding(concat);
+	let encoded = encStruct;
+	// signature = await window.crypto.subtle.sign("HMAC",key,encoded);
+	let result = window.crypto.subtle.verify("HMAC", key, signature, encoded);
+	console.log(result);
 }
+
+// Generate un HMAC key. Only for test purpose.
+// let signature;
+// window.crypto.subtle.generateKey(
+// {
+// 	name: "HMAC",
+// 	hash: {name: "SHA-256"}
+// },
+//   	true,
+// 	["sign", "verify"]
+// ).then((key) => {
+// 	checkStrucValidity(key,signature);
+// });
 
 /*
 	Check stored structure and store default structure if needed
@@ -96,49 +122,3 @@ function checkSettings(settings) {
 // const getStructFromLocal = browser.storage.local.get();
 // getStructFromLocal.then(checkSettings, onError);
 // getStruc.then(onGot, onError);
-
-
-
-/*
-	This section is NOT a final implementation or what so ever so.
-	It's just a test section for message signing and verification.
-	Result of this test will be use in real implementation with parsing in chechStructValidity()
-*/
-(() => {
-	let signature;
-
-	var encMess;
-	function getMessageEncoding() {
-	  // const messageBox = document.querySelector(".hmac #message");
-	  let message = "Message de test";
-	  let enc = new TextEncoder();
-	  encMess = enc.encode(message);
-	}
-
-	async function signMessage(key) {
-		getMessageEncoding();
-		let encoded = encMess;
-		signature = await window.crypto.subtle.sign("HMAC",key,encoded);
-		let result = await window.crypto.subtle.verify("HMAC", key, signature, encoded);
-		console.log(result);
-	}
-
-	async function verifyMessage(key) {
-		getMessageEncoding();
-		let encoded = encMess;
-		console.log(signature);
-		let result = await window.crypto.subtle.verify("HMAC", key, signature, encoded);
-	}
-
-	window.crypto.subtle.generateKey(
-	 	{
-	    	name: "HMAC",
-	    	hash: {name: "SHA-256"}
-	  	},
-	  	true,
-	  	["sign", "verify"]
-	).then((key) => {
-		signMessage(key);
-		// verifyMessage(key);
-	});
-})();
