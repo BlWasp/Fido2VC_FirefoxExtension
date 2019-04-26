@@ -61,6 +61,12 @@ function getStructFromURL(url) {
 	}
 }
 
+/*
+	Convert Base64 to ASCII
+*/
+function b64_to_utf8( str ) {
+  return decodeURIComponent(escape(window.atob( str )));
+}
 
 /*
 	Encode the JSON structure for signature validity purpose
@@ -155,6 +161,27 @@ function importPrivateKey(structToAnalyse,publicKey,pemPrivate) {
 */
 
 
+/*
+	Generate a private and a public RSA keys with SHA-256 for test purpose
+*/
+function generateRSAKey(structToAnalyse) {
+	return window.crypto.subtle.generateKey(
+	{
+		name: "RSASSA-PKCS1-v1_5",
+		modulusLength: 2048,
+		publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+		hash: {name: "SHA-256"}
+	},
+	false,
+	["sign", "verify"]
+	).then(function(key) {
+		checkStrucValidity(structToAnalyse, key.publicKey, key.privateKey);
+	})
+	.catch(function(err) {
+		console.error(err);
+	});
+}
+
 
 /*
 	When a new JSON-LD or JWT structure is received this function check the validity with the proof
@@ -162,7 +189,7 @@ function importPrivateKey(structToAnalyse,publicKey,pemPrivate) {
 */
 // let signature;
 let concat;
-async function checkStrucValidity(structToAnalyse,publicKey) {
+async function checkStrucValidity(structToAnalyse/*,publicKey,privateKey*/) {
 	// var result = false;
 	if (structToAnalyse['@context'] == structToAnalyse[0]) { // If it's a JSON-LD structure
 		// let proof = structToAnalyse.proof.signatureValue; // Recovers only the proof part
@@ -176,21 +203,25 @@ async function checkStrucValidity(structToAnalyse,publicKey) {
 		// console.log(result);
 	
 	} else{ // If it's a JWT structure
-		// Divide the Base64 structure received with the '.' to take the header, the payload and the proof separately
-		// And translate the Base64 to ASCII (in a JSON structure)
+		/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
+		Concates the header and the payload with a "."
+		Encode everythings with an ArrayBuffer for the cyrpto function and then verify the proof with the public key */
+		
 		let parts = structToAnalyse.split('.');
 		let header = parts[0];
 		let data = parts[1];
 		let proof = parts[2];
 		let encodedProof = getStructEncoding(proof);
 
-		console.log(header);
-		console.log(data);
+		// console.log(header);
+		// console.log(data);
 
 		concat = header.concat('.').concat(data); // JSON.stringify(header).concat(JSON.stringify(data)); // Concat the header with the payload
-		console.log(concat);
+		// console.log(concat);
 		let encoded = getStructEncoding(concat);
-		// getStructFromURL(JSON.stringify(header.kid)); //Take the public key from the URI
+
+		let headerString = b64_to_utf8(header);
+		getStructFromURL(headerString.kid); //Take the public key from the URI
 		await window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
 			console.log(result);
 		});
@@ -209,21 +240,6 @@ async function checkStrucValidity(structToAnalyse,publicKey) {
 	// }
 }
 
-importPublicKey(jwtStruct,pemEncodedPublicKey);
-
-
-// Generate un HMAC key. Only for test purpose.
-// window.crypto.subtle.generateKey(
-// {
-// 	name: "HMAC",
-// 	hash: {name: "SHA-256"}
-// },
-//   	true,
-// 	["sign", "verify"]
-// ).then((key) => {
-// 	checkStrucValidity(key);
-// });
-
 
 /*
 	Check stored structure and store default structure if needed
@@ -238,12 +254,12 @@ function checkSettings(settings) {
 	Main part
 */
 // getStructFromURL('https://example.com');
-
+// importPublicKey(jwtStruct,pemEncodedPublicKey);
+// generateRSAKey(jwtStruct);
+checkStrucValidity(jwtStruct);
 
 // const getStructFromLocal = browser.storage.local.get();
 // getStructFromLocal.then(checkSettings, onError);
-
-// getStruc.then(onGot, onError);
 /*
 	End main part
 */
