@@ -44,38 +44,6 @@ function onGot(item) {
 	console.log(JSON.stringify(item));
 }
 
-/*
-	Take the URL where the JSON structure is stored
-	Prepare a XHR request and send it to the server to take the whole JSON-LD structure
-*/
-var structJSONfromURL;
-function getStructFromURL(url) {
-	let reqURL = url;
-	let req = new XMLHttpRequest();
-	req.open('GET', reqURL);
-	req.responseType = 'json';
-	req.send();
-
-	req.onload = function() {
-		structJSONfromURL = req.response;
-	}
-}
-
-/*
-	Convert Base64 to ASCII
-*/
-function b64_to_utf8( str ) {
-  return decodeURIComponent(escape(window.atob( str )));
-}
-
-/*
-	Encode the JSON structure for signature validity purpose
-*/
-function getStructEncoding(struct) {
-	let enc = new TextEncoder();
-	return enc.encode(struct); 
-}
-
 
 /*
 	Key importation section. Public is for final goal, Private is just for test purpose
@@ -160,7 +128,6 @@ function importPrivateKey(structToAnalyse,publicKey,pemPrivate) {
 	End of import
 */
 
-
 /*
 	Generate a private and a public RSA keys with SHA-256 for test purpose
 */
@@ -183,15 +150,90 @@ function generateRSAKey(structToAnalyse) {
 }
 
 
+
+/*
+	Take the URL where the JSON structure is stored
+	Prepare a XHR request and send it to the server to take the whole JSON-LD structure
+*/
+var structJSONfromURL;
+function getStructFromURL(request) {
+	let reqURL = request.url;
+	let req = new XMLHttpRequest();
+	req.open('GET', reqURL);
+	req.responseType = 'json';
+	req.send();
+
+	req.onload = function() {
+		structJSONfromURL = req.response;
+		if (checkStrucValidity(structJSONfromURL,"JWT")) {
+			const getStructFromLocal = browser.storage.local.get();
+			getStructFromLocal.then(checkSettings, onError);
+		}
+	}
+}
+
+
+/*
+	Convert Base64 to ASCII
+*/
+function b64_to_utf8(str) {
+	return decodeURIComponent(escape(window.atob(str)));
+}
+
+/*
+	Encode the JSON structure for signature validity purpose
+*/
+function getStructEncoding(struct) {
+	let enc = new TextEncoder();
+	return enc.encode(struct); 
+}
+
+
 /*
 	When a new JSON-LD or JWT structure is received this function check the validity with the proof
 	Also check de expiration validity
 */
 // let signature;
 let concat;
-async function checkStrucValidity(structToAnalyse/*,publicKey,privateKey*/) {
+function checkStrucValidity(structToAnalyse,type) {
 	// var result = false;
-	if (structToAnalyse['@context'] == structToAnalyse[0]) { // If it's a JSON-LD structure
+	if (type == "JWT") {  // If it's a JWT structure
+		/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
+		Concates the header and the payload with a "."
+		Encode everythings with an ArrayBuffer for the cyrpto function and then verify the proof with the public key */
+		let parts = structToAnalyse.split('.');
+		let header = parts[0];
+		let data = parts[1];
+		let proof = parts[2];
+		let encodedProof = getStructEncoding(proof);
+
+		concat = header.concat('.').concat(data); // JSON.stringify(header).concat(JSON.stringify(data)); // Concat the header with the payload
+		let encoded = getStructEncoding(concat);
+
+		let headerASCII = JSON.parse(b64_to_utf8(header));
+		let keyURL = headerASCII.kid;
+		let keyReq = new XMLHttpRequest();
+		keyReq.open('GET', keyURL);
+		keyReq.responseType = 'string';
+		keyReq.send();
+		req.onload = function() { //Take the public key from the URI
+			let publicKey = keyReq.response;
+			window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
+				if (!result) {
+					onError(result);
+				}
+				return result;
+			});
+		} 
+		
+		// await window.crypto.subtle.sign({name: "RSASSA-PKCS1-v1_5",},privateKey,encoded).then(function(signature) {
+		// 	console.log(new Uint8Array(signature));
+		// 	window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,signature,encoded)
+		// 	.then(function(result) {
+		// 		console.log(result);
+		// 	});
+		// });
+	} else{ // If it's a JSON-LD structure
 		// let proof = structToAnalyse.proof.signatureValue; // Recovers only the proof part
 		// var withoutProof = JSON.parse(JSON.stringify(structToAnalyse));
 		// delete withoutProof.proof;
@@ -201,43 +243,7 @@ async function checkStrucValidity(structToAnalyse/*,publicKey,privateKey*/) {
 		// let publicKey = key;
 		// result = await window.crypto.subtle.verify("RSASSA-PKCS1-v1_5", publicKey, proof, encoded);
 		// console.log(result);
-	
-	} else{ // If it's a JWT structure
-		/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
-		Concates the header and the payload with a "."
-		Encode everythings with an ArrayBuffer for the cyrpto function and then verify the proof with the public key */
-		
-		let parts = structToAnalyse.split('.');
-		let header = parts[0];
-		let data = parts[1];
-		let proof = parts[2];
-		let encodedProof = getStructEncoding(proof);
-
-		// console.log(header);
-		// console.log(data);
-
-		concat = header.concat('.').concat(data); // JSON.stringify(header).concat(JSON.stringify(data)); // Concat the header with the payload
-		// console.log(concat);
-		let encoded = getStructEncoding(concat);
-
-		let headerString = b64_to_utf8(header);
-		getStructFromURL(headerString.kid); //Take the public key from the URI
-		await window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
-			console.log(result);
-		});
-		// await window.crypto.subtle.sign({name: "RSASSA-PKCS1-v1_5",},privateKey,encoded).then(function(signature) {
-		// 	console.log(new Uint8Array(signature));
-		// 	window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,signature,encoded)
-		// 	.then(function(result) {
-		// 		console.log(result);
-		// 	});
-		// });
 	}
-
-	// if (!result) {
-	// 	onError(result);
-	// 	return "Error : bad structure";
-	// }
 }
 
 
@@ -250,16 +256,19 @@ function checkSettings(settings) {
 	}
 }
 
+
 /*
 	Main part
 */
-// getStructFromURL('https://example.com');
 // importPublicKey(jwtStruct,pemEncodedPublicKey);
 // generateRSAKey(jwtStruct);
-checkStrucValidity(jwtStruct);
+browser.webRequest.onBeforeRequest.addListener(
+	getStructFromURL,
+	{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json"]},
+	["blocking"]
+);
+// browser.webRequest.onBeforeRequest.removeListener(takeDynamiqueURL);
 
-// const getStructFromLocal = browser.storage.local.get();
-// getStructFromLocal.then(checkSettings, onError);
 /*
 	End main part
 */
