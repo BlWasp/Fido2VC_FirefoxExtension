@@ -1,4 +1,10 @@
 /*
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
+*/
+
+
+/*
 	Default test JSON-LD structure with proof
 */
 var jsonStruc = {
@@ -149,11 +155,14 @@ function generateRSAKey(structToAnalyse) {
 	});
 }
 
-
+/*
+	This array will store the local storage for verification
+*/
+var structArray = [];
 
 /*
 	Take the URL where the JSON structure is stored
-	Prepare a XHR request and send it to the server to take the whole JSON-LD structure
+	Prepare a XHR request and send it to the server to take the whole JSON-LD or JWT structure
 */
 var structJSONfromURL;
 function getStructFromURL(request) {
@@ -167,7 +176,9 @@ function getStructFromURL(request) {
 		structJSONfromURL = req.response;
 		if (checkStrucValidity(structJSONfromURL,"JWT")) {
 			const getStructFromLocal = browser.storage.local.get();
-			getStructFromLocal.then(checkSettings, onError);
+			getStructFromLocal.then(function(settings) {
+				checkStorage(settings,structJSONfromURL);
+			});
 		}
 	}
 }
@@ -248,11 +259,45 @@ function checkStrucValidity(structToAnalyse,type) {
 
 
 /*
-	Check stored structure and store default structure if needed
+	Add the new structure in the structArray
 */
-function checkSettings(settings) {
-	if(!settings.structJSONfromURL) {
-		browser.storage.local.set({structJSONfromURL});
+function pushArray(structToPush) {
+	structArray.push(structToPush);
+}
+
+/*
+	Verify the structArray to check if the structure is not already present
+*/
+function loopArray(structToFind) {
+	console.log(structArray.length);
+	for (struct in structArray) {
+		if (JSON.stringify(structArray[struct]) == JSON.stringify(structToFind)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/*
+	Settings is the current local storage
+	Struct is the new structure to store
+	If the local storage doesn't know sructArray, it is add with the new structure
+	If the structArray is present, it is extracted from the local storage and send to loopArray to be analyzed
+	If the new structure is unknowed, it is added
+*/
+function checkStorage(settings,struct) {
+	if(!settings.structArray) {
+		console.log("First");
+		pushArray(struct);
+		browser.storage.local.set({structArray});
+	} else {
+		console.log("Second");
+		structArray = settings.structArray;
+		if (!loopArray(struct)) {
+			console.log("third");
+			pushArray(struct);
+			browser.storage.local.set({structArray});
+		}
 	}
 }
 
@@ -264,10 +309,9 @@ function checkSettings(settings) {
 // generateRSAKey(jwtStruct);
 browser.webRequest.onBeforeRequest.addListener(
 	getStructFromURL,
-	{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json"]},
+	{urls: ["https://fido/structIdp/*"]},
 	["blocking"]
 );
-// browser.webRequest.onBeforeRequest.removeListener(takeDynamiqueURL);
 
 /*
 	End main part

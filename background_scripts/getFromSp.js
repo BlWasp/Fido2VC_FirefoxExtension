@@ -1,4 +1,10 @@
 /*
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
+*/
+
+
+/*
 	Error logger
 */
 function onError(e) {
@@ -13,12 +19,11 @@ function onGot(item) {
 }
 
 /*
-	The Service Provider give a JSON structure with the wanted attributs and the context
-	The value of the attributs is empty
-	This function recovers the empty attributs
+	The Service Provider give a JSON structure with the Policy in DNF or CNF
+	This function take the structure and give it to the parser
 */
-var emptyStruct;
-function getEmptyField(url) {
+var policy;
+function getPolicy(url) {
 	let reqURL = url;
 	let req = new XMLHttpRequest();
 	req.open('GET', reqURL);
@@ -26,22 +31,34 @@ function getEmptyField(url) {
 	req.send();
 
 	req.onload = function() {
-		emptyStruct = req.response;
+		policy = req.response;
+		parser(policy);
 	}
 }
 
 /*
-	A solution to parse the different JSON structure in the database
-	After parsing, just take the needed attributs
+	A solution to parse the policy structure and verify the attributs
 */
-function parser(struct) {
-	
-	//console.log(JSON.stringify());
+function parser(policyStruct) {
+	let type = policyStruct['authz_policy'][0][1];
+	if (type == "cnf") {
+		let urn = policyStruct['authz_policy'][0]['cnf']['allOf'][0]['oneOf'][0]['att'][0]['attType'];
+		let partUrn = urn.split(':');
+		let valUrn = partUrn[2];
+		//TODO
+	}
 }
 
+
+
 /*
-	Fill the structure sends by the SP with the values found with the parser
+	Main part
 */
-// function fillFields() {
-// 	localStruct.then()
-// }
+browser.webRequest.onBeforeRequest.addListener(
+	getPolicy,
+	{urls: ["https://fido/policy/*"]},
+	["blocking"]
+);
+/*
+	End of main part
+*/

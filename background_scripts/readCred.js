@@ -1,4 +1,10 @@
 /*
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
+*/
+
+
+/*
 	Error logger
 */
 function onError(e) {
@@ -14,4 +20,4 @@ function onGot(item) {
 
 
 const localStruct = browser.storage.local.get();
-// localStruct.then(onGot, onError);
+localStruct.then(onGot, onError);
