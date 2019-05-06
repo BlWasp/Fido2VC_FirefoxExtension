@@ -1,9 +1,3 @@
-/*
-  Copyright: Copyright (c) 2019 University of Toulouse, France and
-  University of Kent, UK
-*/
-
-
 {
 
   "manifest_version": 2,
@@ -18,14 +12,14 @@
 
   "background": {
     "scripts": 
-    ["background_scripts/storageFromIdps.js",
-    "background_scripts/requestIdps.js",
-    "background_scripts/readCred.js",
-    "background_scripts/getFromSp.js"]
+    ["background_scripts/fido2Usage.js"]
   },
 
-
-  // "background_scripts/test.js"
+// "background_scripts/storageFromIdps.js",
+//     "background_scripts/requestIdps.js",
+//     "background_scripts/readCred.js",
+//     "background_scripts/getFromSp.js"
+// "background_scripts/test.js"
 
   // "browser_action": {
   //   "default_icon": "icons/vc-32.png",

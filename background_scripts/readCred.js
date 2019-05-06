@@ -19,5 +19,5 @@ function onGot(item) {
 }
 
 
-const localStruct = browser.storage.local.get();
-localStruct.then(onGot, onError);
+// const localStruct = browser.storage.local.get();
+// localStruct.then(onGot, onError);
