@@ -215,27 +215,40 @@ function checkStrucValidity(structToAnalyse,type) {
 		let parts = structToAnalyse.split('.');
 		let header = parts[0];
 		let data = parts[1];
-		let proof = parts[2];
-		let encodedProof = getStructEncoding(proof);
+		let dataASCII = JSON.parse(b64_to_utf8(header));
+		let schemaURL = dataASCII['vc']['credentialSchema']['id'];
+		let schemaReq = new XMLHttpRequest();
+		schemaReq.open('GET', schemaURL);
+		schemaReq.responseType = 'json';
+		schemaReq.send();
+		
+		schemaReq.onload = function() { //Take the schema from the URI
+			let schemaVerif = schemaReq.response;
+			if (verifySchema(schemaVerif,dataASCII['vc'])) {
+				let proof = parts[2];
+				let encodedProof = getStructEncoding(proof);
 
-		concat = header.concat('.').concat(data); // JSON.stringify(header).concat(JSON.stringify(data)); // Concat the header with the payload
-		let encoded = getStructEncoding(concat);
+				concat = header.concat('.').concat(data); // Concat the header with the payload
+				let encoded = getStructEncoding(concat);
 
-		let headerASCII = JSON.parse(b64_to_utf8(header));
-		let keyURL = headerASCII.kid;
-		let keyReq = new XMLHttpRequest();
-		keyReq.open('GET', keyURL);
-		keyReq.responseType = 'string';
-		keyReq.send();
-		req.onload = function() { //Take the public key from the URI
-			let publicKey = keyReq.response;
-			window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
-				if (!result) {
-					onError(result);
+				let headerASCII = JSON.parse(b64_to_utf8(header));
+				let keyURL = headerASCII.kid;
+				let keyReq = new XMLHttpRequest();
+				keyReq.open('GET', keyURL);
+				keyReq.responseType = 'string';
+				keyReq.send();
+				keyReq.onload = function() { //Take the public key from the URI
+					let publicKey = keyReq.response;
+					window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
+						if (!result) {
+							onError(result);
+						}
+						return result;
+					});
 				}
-				return result;
-			});
-		} 
+			}
+		}
+		
 		
 		// await window.crypto.subtle.sign({name: "RSASSA-PKCS1-v1_5",},privateKey,encoded).then(function(signature) {
 		// 	console.log(new Uint8Array(signature));
@@ -257,6 +270,41 @@ function checkStrucValidity(structToAnalyse,type) {
 	}
 }
 
+/*
+	When the JSON structure is received it contains a "schema" attribut
+	This function provides a schema verification between the payload of the VC and the schema
+*/
+function verifySchema(schema,payload) {
+	let properties = schema['properties'];
+	for (var attributs in payload) {
+		for (var checkAttributs in properties) {
+			if (attributs == checkAttributs) {
+				console.log("Valide attributs");
+				if (typeof(payload[attributs]) == schema['properties'][checkAttributs]['type']) {
+					if (typeof(payload[attributs]) == "object") {
+						for (var attributsInside in payload[attributs]) {
+							for (var checkAttributsInside in schema['properties'][checkAttributs]['properties']) {
+								if (attributsInside == checkAttributsInside) {
+									if (typeof(payload[attributs][attributsInside]) == schema['properties'][checkAttributs]['properties'][checkAttributsInside]['type']) {
+										console.log("Inside Valide");
+									} else {
+										console.log("Inside not valide");
+										return false;
+									}
+								}
+							}
+						}
+					}
+          			console.log("Valide type");
+				} else {
+					console.log("Not valide type");
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
 
 /*
 	Add the new structure in the structArray

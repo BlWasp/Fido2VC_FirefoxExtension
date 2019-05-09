@@ -110,40 +110,48 @@ function parser(policyStruct) {
 		var valuePart = [];
 		var operatorPart = [];
 		for (var and in key) {
-	  		if (key[and] == "and") {
-	    		for (var indexInAnd in Object.keys(policyStruct['policy'][key[and]])){
-	      			//console.log(indexInAnd);
-	      			for (var or in policyStruct['policy'][key[and]][indexInAnd]) {
-	        			//console.log(or);
-	        			for (var indexInOr in policyStruct['policy'][key[and]][indexInAnd][or]) {
-	          				//console.log(indexInOr);
-	          				for (var vcContents in policyStruct['policy'][key[and]][indexInAnd][or][indexInOr]) {
-					            //console.log(vcContents);
-					            //console.log(JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]));
-					            partsStruct = JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]).split('"');
-					            if (partsStruct[1] == "value") {
-					            	valuePart.push(partsStruct[3]);
-					            	// console.log(valuePart);
-					            }
-					            if (partsStruct[5] == "operator") {
-					            	operatorPart.push(partsStruct[7]);
-					            	// console.log(operatorPart);
-					            }
-					            if (partsStruct[1] == "operator") {
-					            	operatorPart.push(partsStruct[3]);
-					            	// console.log(operatorPart);
-					            }
-	            
-					            /*for (var loop6 in policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]) {
-					              	console.log(loop6);
-					            }*/
-          					}
-        				}
-      				}
-    			}
-  			}
+			if (key[and] == "and") {
+				for (var indexInAnd in Object.keys(policyStruct['policy'][key[and]])){
+					//console.log(indexInAnd);
+					for (var or in policyStruct['policy'][key[and]][indexInAnd]) {
+						//console.log(or);
+						for (var indexInOr in policyStruct['policy'][key[and]][indexInAnd][or]) {
+							//console.log(indexInOr);
+							for (var vcContents in policyStruct['policy'][key[and]][indexInAnd][or][indexInOr]) {
+								//console.log(vcContents);
+								//console.log(JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]));
+								partsStruct = JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]).split('"');
+								if (partsStruct[1] == "value") {
+									valuePart.push(partsStruct[3]);
+									// console.log(valuePart);
+								}
+								if (partsStruct[5] == "operator") {
+									operatorPart.push(partsStruct[7]);
+									// console.log(operatorPart);
+								}
+								if (partsStruct[1] == "operator") {
+									operatorPart.push(partsStruct[3]);
+									// console.log(operatorPart);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
+}
+
+
+function checkLocalStorage() {
+	const localStorage = browser.storage.local.get();
+	localStorage.then(function(local) {
+		if (!local.structArray) {
+			console.log("No VC");
+		} else {
+			//TODO
+		}
+	});
 }
 
 
