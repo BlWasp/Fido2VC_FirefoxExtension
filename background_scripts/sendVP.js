@@ -56,7 +56,7 @@ var jsonStruc2 = {
 
 
 function utf8_to_b64(str) {
-  console.log(str);
+  // console.log(str);
   return window.btoa(unescape(encodeURIComponent(str)));
 }
 
@@ -66,9 +66,11 @@ function getStructEncoding(struct) {
 }
 
 /*
-  Make a VP from to VC
+  Make a VP from VCs
+  Hash the VP and sign it
+  Return an array with the VP and the hash signature
 */
-function makeVP(VC1,VC2) {
+function makeVP(...VC) {
 	let header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
 	let payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
 		"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
@@ -85,26 +87,41 @@ function makeVP(VC1,VC2) {
 			"verifiableCredential": []
 		}
 	};
-	payload['vp']['verifiableCredential'].push(VC1);
-	payload['vp']['verifiableCredential'].push(VC2);
+	for (var loopArguments of arguments) {
+		payload['vp']['verifiableCredential'].push(loopArguments);
+	}
 	// console.log(payload);
 	let b64Header = utf8_to_b64(JSON.stringify(header));
 	let b64Payload = utf8_to_b64(JSON.stringify(payload));
 	let b64VP = b64Header+"."+b64Payload;
-	console.log(b64VP);
+	// console.log(b64VP);
 
 	window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
-		// TODO sign with Fido private key
-		// return [hashVP,signature];
+		var encoded = getStructEncoding(hashVP);
+		window.crypto.subtle.sign({name: "RSASSA-PKCS1-v1_5",},privateKey,encoded).then(function(signature) {
+			// return [b64VP,signature];
+		});
 	});
 }
 
 
 /*
+	Send the array from makeVP to the SP server
+*/
+function sendViaXHR() {
+	let url = document.location.href;
+	var xhrVP = new XMLHttpRequest();
+	xhrVP.open("POST", url, true);
+	// xhrVP.setRequestHeader("json", );
+
+	xhrVP.onreadystatechange = function() {
+		if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+			console.log("Request send");
+	    }
+	}
+	xhrVP.send(makeVP(jsonStruc,jsonStruc2));
+}
+
+/*
 	Main part
 */
-// browser.webRequest.onBeforeRequest.addListener(
-// 	needAttributs,
-// 	{urls: ["https://fido/generateStruct/*"]},
-// 	["blocking"]
-// );
