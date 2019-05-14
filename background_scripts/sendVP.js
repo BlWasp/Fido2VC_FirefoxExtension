@@ -68,7 +68,7 @@ function getStructEncoding(struct) {
 /*
   Make a VP from VCs
   Hash the VP and sign it
-  Return an array with the VP and the hash signature
+  Return an array with the Base64 VP and the hash signature
 */
 function makeVP(...VC) {
 	let header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
@@ -97,9 +97,11 @@ function makeVP(...VC) {
 	// console.log(b64VP);
 
 	window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
-		var encoded = getStructEncoding(hashVP);
-		window.crypto.subtle.sign({name: "RSASSA-PKCS1-v1_5",},privateKey,encoded).then(function(signature) {
-			// return [b64VP,signature];
+		var signatureOptions = {challenge : hashVP, rpId : window.location.host};
+		navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
+			if (!credentials)
+				throw new Error('Unable to perform a signature');
+			return [b64VP,/*credentials.signature*/];
 		});
 	});
 }
