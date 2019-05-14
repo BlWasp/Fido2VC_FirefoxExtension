@@ -53,7 +53,7 @@ var vc = {
  */
 function parseVC(jsonObject){
 
-	// Around 11, I'll check it later
+	// Around 15, I'll check it later
 	if(Object.keys(jsonObject).length > 15){
 		document.write("Error : Unknown field(s).")
 		return;
@@ -92,13 +92,21 @@ function verifyContexts(contexts) {
 		vcIsValid = false;
 	}
 
-	// To do : check if the issuers are well known (in the local storage)
+	let knownContexts = browser.storage.local.get("knownContexts");
 
+	for(var i = 1; i < contexts.length; i++)
+	{
+     	if(!knownContexts.includes(contexts[i])){
+     		document.write("Error : " + contexts[i] + " is not known.");
+     		vcIsValid = false;
+     		return;
+     	}
+	}
 	dictionary['contexts'] = contexts;
 }
 
 /**
- * Verify if there is at less one type and the the VC type is present
+ * Verify if there is at less one type and that the VC type is present
  *
  * @param      {Array}  type    The types use in the VC
  */
@@ -161,9 +169,14 @@ function verifyIssuer(issuer){
 		return;
 	}
 
-	// To do : where the issuers are located?
-
-	dictionary['issuer'] = issuer; 
+	let trustedIssuers = browser.storage.local.get("trustedIssuers");
+	if(trustedIssuers.includes(issuer)){
+		dictionary['issuer'] = issuer; 
+	}
+	else{
+		document.write("Error : the issuer is not trusted");
+		vcIsValid = false;
+	}
 }
 
 /**
@@ -204,7 +217,7 @@ function verifyTermsOfUse(termsOfUse){
 			vcIsValid = false;
 			return;
 		}
-		if(termsOfUse['type'].localeCompare("nonTransferable", 'en', {sensitivity: 'base'}) == 0){
+		if(termsOfUse['type'] == 'nonTransferable'){
 			// How to find the holder?????
 		}
 
