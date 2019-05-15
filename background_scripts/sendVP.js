@@ -96,18 +96,22 @@ function makeVP(...VC) {
 	let b64VP = b64Header+"."+b64Payload;
 	console.log(b64VP);
 
-	window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
-		var signatureOptions = {'challenge' : hashVP, 'rp' : { 'name' : "example.com"}};
+	return window.crypto.subtle.digest('SHA-256', getStructEncoding("Coucou"));
+}
+
+
+makeVP(jsonStruc,jsonStruc2).then(function(hashVP) {
+		console.log(hashVP);
+		var signatureOptions = {challenge : hashVP, rpId : "example.com"};
+		console.log('test');
 		navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
+			console.log("test2");
 			if (!credentials)
 				throw new Error('Unable to perform a signature');
 			// return [b64VP,/*credentials.signature*/];
-			console.log("coucou");
+			console.log(credentials);
 		});
-	});
-}
-
-makeVP(jsonStruc,jsonStruc2);
+	});;
 
 // /*
 // 	Send the array from makeVP to the SP server
@@ -128,7 +132,6 @@ makeVP(jsonStruc,jsonStruc2);
 
 
 // function callMake() {
-// 	// console.log("salut");
 // 	makeVP(jsonStruc,jsonStruc2);
 // }
 

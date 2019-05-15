@@ -1,12 +1,12 @@
 browser.contextMenus.create({
 	id: "sign",
-	title: "Sign the VP"
+	title: "Sign this VP"
 });
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
 	if (info.menuItemId == "sign") {
 		browser.tabs.executeScript({
-			file: "sendVP.js"
+			file: "background_scripts/sendVP.js"
 		});
 	}
 });
