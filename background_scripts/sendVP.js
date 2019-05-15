@@ -109,34 +109,35 @@ function makeVP(...VC) {
 
 makeVP(jsonStruc,jsonStruc2);
 
-/*
-	Send the array from makeVP to the SP server
-*/
-function sendViaXHR() {
-	let url = document.location.href;
-	var xhrVP = new XMLHttpRequest();
-	xhrVP.open("POST", url, true);
-	// xhrVP.setRequestHeader("json", );
+// /*
+// 	Send the array from makeVP to the SP server
+// */
+// function sendViaXHR() {
+// 	let url = document.location.href;
+// 	var xhrVP = new XMLHttpRequest();
+// 	xhrVP.open("POST", url, true);
+// 	// xhrVP.setRequestHeader("json", );
 
-	xhrVP.onreadystatechange = function() {
-		if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-			console.log("Request send");
-	    }
-	}
-	xhrVP.send(makeVP(jsonStruc,jsonStruc2));
-}
+// 	xhrVP.onreadystatechange = function() {
+// 		if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+// 			console.log("Request send");
+// 	    }
+// 	}
+// 	xhrVP.send(makeVP(jsonStruc,jsonStruc2));
+// }
 
 
-function callMake() {
-	// console.log("salut");
-	makeVP(jsonStruc,jsonStruc2);
-}
+// function callMake() {
+// 	// console.log("salut");
+// 	makeVP(jsonStruc,jsonStruc2);
+// }
 
 /*
 	Main part
 */
-browser.webRequest.onBeforeRequest.addListener(
-	callMake,
-	{urls: ["https://example.com/*"]},
-	["blocking"]
-);
+
+// browser.webRequest.onBeforeRequest.addListener(
+// 	callMake,
+// 	{urls: ["https://example.com/*"]},
+// 	["blocking"]
+// );
