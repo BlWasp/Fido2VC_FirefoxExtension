@@ -90,22 +90,24 @@ function makeVP(...VC) {
 	for (var loopArguments of arguments) {
 		payload['vp']['verifiableCredential'].push(loopArguments);
 	}
-	// console.log(payload);
+	console.log(payload);
 	let b64Header = utf8_to_b64(JSON.stringify(header));
 	let b64Payload = utf8_to_b64(JSON.stringify(payload));
 	let b64VP = b64Header+"."+b64Payload;
-	// console.log(b64VP);
+	console.log(b64VP);
 
 	window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
-		var signatureOptions = {challenge : hashVP, rpId : window.location.host};
+		var signatureOptions = {'challenge' : hashVP, 'rp' : { 'name' : "example.com"}};
 		navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
 			if (!credentials)
 				throw new Error('Unable to perform a signature');
-			return [b64VP,/*credentials.signature*/];
+			// return [b64VP,/*credentials.signature*/];
+			console.log("coucou");
 		});
 	});
 }
 
+makeVP(jsonStruc,jsonStruc2);
 
 /*
 	Send the array from makeVP to the SP server
@@ -124,6 +126,17 @@ function sendViaXHR() {
 	xhrVP.send(makeVP(jsonStruc,jsonStruc2));
 }
 
+
+function callMake() {
+	// console.log("salut");
+	makeVP(jsonStruc,jsonStruc2);
+}
+
 /*
 	Main part
 */
+browser.webRequest.onBeforeRequest.addListener(
+	callMake,
+	{urls: ["https://example.com/*"]},
+	["blocking"]
+);
