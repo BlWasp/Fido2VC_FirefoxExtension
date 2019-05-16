@@ -73,6 +73,14 @@ function parseVC(jsonObject){
     if(!vcIsValid){
     	document.write("Error. VC not valid.\n");
     	return;
+    }else{
+    	var currentIssuer = browser.storage.local.get(dictionary[issuer]);
+    	if(currentIssuer == null){ // The issuer of this VC has others VC
+    		var VCs = [jsonObject];
+    		browser.storage.local.set(dictionary[issuer], VCs);
+    	}else{
+    		currentIssuer.push(jsonObject);
+    	}
     }
 }
 
