@@ -71,8 +71,8 @@ function getStructEncoding(struct) {
   Return an array with the Base64 VP and the hash signature
 */
 function makeVP(...VC) {
-	let header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
-	let payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+	var header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
+	var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
 		"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
 		"aud": "did:example:4a57546973436f6f6c4a4a57573",
 		"iat": "1541493724",
@@ -88,6 +88,7 @@ function makeVP(...VC) {
 		}
 	};
 	for (var loopArguments of arguments) {
+		//console.log(JSON.stringify(loopArguments));
 		payload['vp']['verifiableCredential'].push(loopArguments);
 	}
 	console.log(payload);
@@ -96,12 +97,8 @@ function makeVP(...VC) {
 	let b64VP = b64Header+"."+b64Payload;
 	console.log(b64VP);
 
-	return window.crypto.subtle.digest('SHA-256', getStructEncoding("Coucou"));
-}
-
-
-makeVP(jsonStruc,jsonStruc2).then(function(hashVP) {
-		console.log(hashVP);
+	window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
+		console.log(hashVP.byteLength);
 		var signatureOptions = {challenge : hashVP, rpId : "example.com"};
 		console.log('test');
 		navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
@@ -111,7 +108,10 @@ makeVP(jsonStruc,jsonStruc2).then(function(hashVP) {
 			// return [b64VP,/*credentials.signature*/];
 			console.log(credentials);
 		});
-	});;
+	});
+}
+
+makeVP(jsonStruc,jsonStruc2);
 
 // /*
 // 	Send the array from makeVP to the SP server
