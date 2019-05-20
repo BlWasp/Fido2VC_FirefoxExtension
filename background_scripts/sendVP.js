@@ -71,44 +71,54 @@ function getStructEncoding(struct) {
   Return an array with the Base64 VP and the hash signature
 */
 function makeVP(...VC) {
-	var header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
-	var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-		"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
-		"aud": "did:example:4a57546973436f6f6c4a4a57573",
-		"iat": "1541493724",
-		"exp": "1573029723",
-		"nonce": "343s$FSFDa-",
-		"vp": {
-			"@context": [
-				"https://www.w3.org/2018/credentials/v1",
-				"https://www.w3.org/2018/credentials/examples/v1"
-			],
-			"type": ["VerifiablePresentation"],
-			"verifiableCredential": []
-		}
-	};
-	for (var loopArguments of arguments) {
-		//console.log(JSON.stringify(loopArguments));
-		payload['vp']['verifiableCredential'].push(loopArguments);
-	}
-	console.log(payload);
-	let b64Header = utf8_to_b64(JSON.stringify(header));
-	let b64Payload = utf8_to_b64(JSON.stringify(payload));
-	let b64VP = b64Header+"."+b64Payload;
-	console.log(b64VP);
+	// var header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
+	// var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+	// 	"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
+	// 	"aud": "did:example:4a57546973436f6f6c4a4a57573",
+	// 	"iat": "1541493724",
+	// 	"exp": "1573029723",
+	// 	"nonce": "343s$FSFDa-",
+	// 	"vp": {
+	// 		"@context": [
+	// 			"https://www.w3.org/2018/credentials/v1",
+	// 			"https://www.w3.org/2018/credentials/examples/v1"
+	// 		],
+	// 		"type": ["VerifiablePresentation"],
+	// 		"verifiableCredential": []
+	// 	}
+	// };
+	// for (var loopArguments of arguments) {
+	// 	//console.log(JSON.stringify(loopArguments));
+	// 	payload['vp']['verifiableCredential'].push(loopArguments);
+	// }
+	// console.log(payload);
+	// let b64Header = utf8_to_b64(JSON.stringify(header));
+	// let b64Payload = utf8_to_b64(JSON.stringify(payload));
+	// let b64VP = b64Header+"."+b64Payload;
+	// console.log(b64VP);
 
-	window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
-		console.log(hashVP.byteLength);
-		var signatureOptions = {challenge : hashVP, rpId : "example.com"};
-		console.log('test');
-		navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
-			console.log("test2");
-			if (!credentials)
-				throw new Error('Unable to perform a signature');
-			// return [b64VP,/*credentials.signature*/];
-			console.log(credentials);
-		});
-	});
+	// window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
+	// 	console.log(hashVP.byteLength);
+	// 	var signatureOptions = {challenge : hashVP, rpId : "example.com"};
+	// 	console.log('test');
+	// 	navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
+	// 		console.log("test2");
+	// 		if (!credentials)
+	// 			throw new Error('Unable to perform a signature');
+	// 		// return [b64VP,/*credentials.signature*/];
+	// 		console.log(credentials);
+	// 	});
+	// });
+
+const publicKeyCredentialRequestOptions = {
+    challenge: Uint8Array.from(
+        "randomStringFromServer", c => c.charCodeAt(0)),
+    timeout: 60000,
+}
+
+const assertion = await navigator.credentials.get({
+    publicKey: publicKeyCredentialRequestOptions
+});
 }
 
 makeVP(jsonStruc,jsonStruc2);

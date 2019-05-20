@@ -4,7 +4,7 @@
   "name": "FidoVC",
   "version": "1.0",
 
-  "description": "Allow to read and write in a local database for a Fido2 with Verifiable Credentials use",
+  "description": "An extension that allows to use Verifiable Credentials",
 
   "icons": {
     "48": "icons/vc-48.png"
@@ -13,19 +13,22 @@
   "background": {
     "scripts": 
     ["background_scripts/storageFromIdps.js",
-    "background_scripts/requestIdps.js",
-    "background_scripts/readCred.js",
-    "background_scripts/getFromSp.js",
-    "background_scripts/callSend.js"]
+    "background_scripts/parserVC.js",
+    "background_scripts/getFromSp.js"]
   },
 
+  // "content_scripts": [
+  //   {
+  //     "js": ["content_scripts/callSend.js"]
+  //   }
+  // ],
 
+// "background_scripts/test.js"
 
-  // "browser_action": {
-  //   "default_icon": "icons/vc-32.png",
-  //   "default_title": "FidoVC",
-  //   "default_popup": "popup/fidoPopup.html"
-  // }
+  "browser_action": {
+    "default_icon": "icons/vc-32.png",
+    "default_popup": "popup/policyClick.html"
+  },
 
   "permissions": [
     "https://fido/*",

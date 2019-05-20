@@ -8,9 +8,9 @@
 */
 var policyTest = {
   "policy": {
-    "type": "CNF",
-    "and": [{
-      "or": [{
+    "type": "DNF",
+    "or": [{
+      "and": [{
         "issuer": {
           "value": "bank",
           "operator": "subclassOf"
@@ -46,7 +46,7 @@ var policyTest = {
       }]
     },
     {
-      "or": [{
+      "and": [{
         "issuer": {
           "value": "UK_university",
           "operator": "memberOf"
@@ -87,8 +87,8 @@ function onGot(item) {
 	This function take the structure and give it to the parser
 */
 var policy;
-function getPolicy(url) {
-	let reqURL = url;
+function getPolicy() {
+	let reqURL = document.location.href;
 	let req = new XMLHttpRequest();
 	req.open('GET', reqURL);
 	req.responseType = 'json';
@@ -96,106 +96,139 @@ function getPolicy(url) {
 
 	req.onload = function() {
 		policy = req.response;
-		parser(policy);
+		extractType(policy);
 	}
 }
+
 
 /*
-	A solution to parse the policy structure and verify the attributs
-	In a first time the function takes the value and the operator of each part of the credential
-	Then the two array are gave to the verification function
+	A solution to parse the policy structure and print it in a popup
+	The functions make the difference between CNF and DNF
 */
-var valuePart = [];
-var operatorPart = [];
-var propertiesPart = [];
-function parser(policyStruct) {
-	let type = policyStruct['policy']['type'];
-	var key = Object.keys(policyStruct['policy']);
-	// console.log(key);
-	for (var and in key) {
-		if (key[and] == "and") {
-			for (var indexInAnd in Object.keys(policyStruct['policy'][key[and]])){
-				//console.log(indexInAnd);
-				for (var or in policyStruct['policy'][key[and]][indexInAnd]) {
-					//console.log(or);
-					for (var indexInOr in policyStruct['policy'][key[and]][indexInAnd][or]) {
-						//console.log(indexInOr);
-						for (var vcContents in policyStruct['policy'][key[and]][indexInAnd][or][indexInOr]) {
-							//console.log(vcContents);
-							//console.log(JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]));
-							partsStruct = JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]).split('"');
-							if (partsStruct[1] == "value") {
-								let valueDic = {};
-								valueDic[vcContents] = partsStruct[3];
-								valuePart.push(valueDic);
-								// console.log(valuePart);
-							}
-							if (partsStruct[1] == "properties") {
-								let propertiesDic = {};
-								propertiesDic[vcContents] = partsStruct[3];
-								propertiesPart.push(propertiesDic);
-								// console.log(propertiesPart);
-							}
-							if (partsStruct[5] == "value") {
-								let valueDic = {};
-								valueDic[vcContents] = partsStruct[7];
-								valuePart.push(valueDic);
-								// console.log(valuePart);
-							}
-							if (partsStruct[5] == "operator") {
-								let operatorDic = {};
-								operatorDic[vcContents] = partsStruct[7];
-								operatorPart.push(operatorDic);
-								// console.log(operatorPart);
-							}
-							if (partsStruct[9] == "operator") {
-								let operatorDic = {};
-								operatorDic[vcContents] = partsStruct[11];
-								operatorPart.push(operatorDic);
-								// console.log(operatorPart);
-							}
-						}
-					}
-				}
+function extractIssuer(policyStructIssuer) {
+	for (var loopIssuer in policyStructIssuer) {
+		if (loopIssuer == "issuer") {
+			partIssuer = JSON.stringify(policyStructIssuer[loopIssuer]).split('"');
+			if (partIssuer[1] == "value") {
+				// console.log(partIssuer[3]);
+				vc.document.write(partIssuer[3]+"<br>");
+			}
+			if (partIssuer[5] == "value") {
+				// console.log(partIssuer[7]);
+				vc.document.write(partIssuer[7]+"<br>");
+			}
+		}
+	}
+	vc.document.write("With this value and properties :<br>");
+	extractCredentialSubject(policyStructIssuer);
+}
+
+function extractCredentialSubject(policyStructSubject) {
+	for (var loopSubject in policyStructSubject) {
+		if (loopSubject == "credentialSubject") {
+			partSubject = JSON.stringify(policyStructSubject[loopSubject]).split('"');
+			if (partSubject[1] == "value") {
+				// console.log(partSubject[3]);
+				vc.document.write("Value: "+partSubject[3]+"<br>");
+			}
+			if (partSubject[5] == "value") {
+				// console.log(partSubject[7]);
+				vc.document.write("Value : "+partSubject[7]+"<br>");
+			}
+			if (partSubject[1] == "properties") {
+				// console.log(partSubject[3]);
+				vc.document.write("Properties : "+partSubject[3]+"<br>");
 			}
 		}
 	}
 }
 
+function extractType() {
+	vc = open("",'popup','width=400,height=400,toolbar=no,scrollbars=yes,resizable=yes');
 
-function checkLocalStorage(type) {
-	const localStorage = browser.storage.local.get();
-	localStorage.then(function(local) {
-		if (!local.structArray) {
-			console.log("No VC");
-		} else {
-			if (type == "CNF") {
-				for (var valueIndex in valuePart) {
-					if (valueIndex == "issuer") {
-						for (var structArrayIndex in local.structArray) {
-							if (local.structArray[structArrayIndex]['issuer'] == valuePart[valueIndex]) {
-								//TODO
+	var policyStruct = policyTest;
+	var type = policyStruct['policy']['type'];
+	var key = Object.keys(policyStruct['policy']);
+	if (type == "CNF") {
+		vc.document.write("<body>We need all the sections below. One element per section is necessary to validate it.<br><br>");
+		for (var and in key) {
+			if (key[and] == "and") {
+				for (var indexInAnd in Object.keys(policyStruct['policy'][key[and]])){
+					for (var or in policyStruct['policy'][key[and]][indexInAnd]) {
+						// console.log("We need one of them : ");
+						vc.document.write("We need one of them :<br>");
+						for (var indexInOr in policyStruct['policy'][key[and]][indexInAnd][or]) {
+							for (var vcContents in policyStruct['policy'][key[and]][indexInAnd][or][indexInOr]) {
+								if (vcContents == "VCtype") {
+									partsStruct = JSON.stringify(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr][vcContents]).split('"');
+									if (partsStruct[1] == "value") {
+										// console.log(partsStruct[3]);
+										vc.document.write("<br>"+partsStruct[3]+"<br>");
+									}
+									if (partsStruct[5] == "value") {
+										// console.log(partsStruct[7]);
+										vc.document.write("<br>"+partsStruct[7]+"<br>");
+									}
+									// console.log("from ");
+									vc.document.write("FROM<br>");
+									extractIssuer(policyStruct['policy'][key[and]][indexInAnd][or][indexInOr]);
+								}
 							}
 						}
 					}
+					// console.log("WITH THIS, ");
+					vc.document.write("<br>WITH THIS, ");
 				}
 			}
 		}
-	});
+		vc.document.write("</body>");
+	}
+	if (type == "DNF") {
+		vc.document.write("<body>We need one of the section below. All the elements are necessary to validate the section.<br><br>");
+		for (var or in key) {
+			if (key[or] == "or") {
+				for (var indexInOr in Object.keys(policyStruct['policy'][key[or]])){
+					for (var and in policyStruct['policy'][key[or]][indexInOr]) {
+						// console.log("We need all of them for this section : ");
+						vc.document.write("We need all of them for this section :<br>");
+						for (var indexInAnd in policyStruct['policy'][key[or]][indexInOr][and]) {
+							for (var vcContents in policyStruct['policy'][key[or]][indexInOr][and][indexInAnd]) {
+								if (vcContents == "VCtype") {
+									partsStruct = JSON.stringify(policyStruct['policy'][key[or]][indexInOr][and][indexInAnd][vcContents]).split('"');
+									if (partsStruct[1] == "value") {
+										// console.log(partsStruct[3]);
+										vc.document.write("<br>"+partsStruct[3]+"<br>");
+									}
+									if (partsStruct[5] == "value") {
+										// console.log(partsStruct[7]);
+										vc.document.write("<br>"+partsStruct[7]+"<br>");
+									}
+									// console.log("from ");
+									vc.document.write("FROM<br>");
+									extractIssuer(policyStruct['policy'][key[or]][indexInOr][and][indexInAnd]);
+								}
+							}
+						}
+					}
+					// console.log("OR, ");
+					vc.document.write("<br>OR, ");
+				}
+			}
+		}
+		vc.document.write("</body>");
+	}
 }
-
-
-// parser(policyTest);
 
 
 /*
 	Main part
 */
-browser.webRequest.onBeforeRequest.addListener(
-	getPolicy,
-	{urls: ["https://fido/policy/*"]},
-	["blocking"]
-);
+window.addEventListener("click",getPolicy);
+// browser.webRequest.onBeforeRequest.addListener(
+// 	getPolicy,
+// 	{urls: ["https://fido/policy/*"]},
+// 	["blocking"]
+// );
 /*
 	End of main part
 */
