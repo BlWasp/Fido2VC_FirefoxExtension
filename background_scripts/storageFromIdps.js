@@ -164,6 +164,28 @@ var structArray = [];
 	Take the URL where the JSON structure is stored
 	Prepare a XHR request and send it to the server to take the whole JSON-LD or JWT structure
 */
+
+var structJSONfromURL;
+function getRespFromIDP(){
+	browser.webRequest.onBeforeRequest.removeListener(getResp);
+	var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+        	/*								*/
+            /* TRAITEMENT DE LA REQUETE ICI */
+            /*								*/
+            browser.webRequest.onBeforeRequest.addListener(
+ 				getResp,
+ 				{urls: ["https://fido/structIdp/*"]}
+ 			);
+        }
+    }
+	xmlHttp.open("GET", "URL_WHERE_WE_CAN_GET_VCs", true); // true for asynchronous 
+	xmlHttp.responseType = 'json';
+	xmlHttp.send(null);
+}
+
+/*
 var structJSONfromURL;
 function getStructFromURL(request) {
 	let reqURL = request.url;
@@ -181,7 +203,7 @@ function getStructFromURL(request) {
 			});
 		}
 	}
-}
+}*/
 
 
 /*
@@ -360,8 +382,7 @@ function checkStorage(settings,struct) {
 // generateRSAKey(jwtStruct);
 browser.webRequest.onBeforeRequest.addListener(
 	getStructFromURL,
-	{urls: ["https://fido/structIdp/*"]},
-	["blocking"]
+	{urls: ["https://fido/structIdp/*"]}
 );
 
 /*
