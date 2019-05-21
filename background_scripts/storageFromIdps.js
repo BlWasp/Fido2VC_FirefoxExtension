@@ -282,17 +282,20 @@ function verifySchema(schema,payload) {
 				console.log("Valide attributs");
 				if (typeof(payload[attributs]) == schema['properties'][checkAttributs]['type']) {
 					if (typeof(payload[attributs]) == "object") {
-						for (var attributsInside in payload[attributs]) {
-							for (var checkAttributsInside in schema['properties'][checkAttributs]['properties']) {
-								if (attributsInside == checkAttributsInside) {
-									if (typeof(payload[attributs][attributsInside]) == schema['properties'][checkAttributs]['properties'][checkAttributsInside]['type']) {
-										console.log("Inside Valide");
-									} else {
-										console.log("Inside not valide");
-										return false;
-									}
-								}
-							}
+						// for (var attributsInside in payload[attributs]) {
+						// 	for (var checkAttributsInside in schema['properties'][checkAttributs]['properties']) {
+						// 		if (attributsInside == checkAttributsInside) {
+						// 			if (typeof(payload[attributs][attributsInside]) == schema['properties'][checkAttributs]['properties'][checkAttributsInside]['type']) {
+						// 				console.log("Inside Valide");
+						// 			} else {
+						// 				console.log("Inside not valide");
+						// 				return false;
+						// 			}
+						// 		}
+						// 	}
+						// }
+						if (!verifySchema(schema['properties'][checkAttributs],payload[attributs])) {
+							return false;
 						}
 					}
           			console.log("Valide type");
