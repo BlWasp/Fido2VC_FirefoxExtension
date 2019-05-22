@@ -158,13 +158,15 @@ function generateRSAKey(structToAnalyse) {
 /*
 	This array will store the local storage for verification
 */
-var structArray = [];
+var structArrayHistory = [];
+var utfArray = []; // Will get back the array from the Idp with the structure convert in UTF-8
+var storageToSend = [];
+var issuer;
 
 /*
 	Take the URL where the JSON structure is stored
 	Prepare a XHR request and send it to the server to take the whole JSON-LD or JWT structure
 */
-
 var structJSONfromURL;
 function getRespFromIDP(){
 	browser.webRequest.onBeforeRequest.removeListener(getResp);
@@ -174,9 +176,13 @@ function getRespFromIDP(){
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
         	structJSONfromURL = xmlHttp.response;
         	if (checkStrucValidity(structJSONfromURL,"JWT")) {
-				const getStructFromLocal = browser.storage.local.get();
-				getStructFromLocal.then(function(settings) {
-					checkStorage(settings,structJSONfromURL);
+				const getHistoryFromLocal = browser.storage.local.get(structArrayHistory);
+				getHistoryFromLocal.then(function(settings) {
+					addStorageHistory(settings);
+				});
+				const getSendFromLocal = browser.storage.local.get(storageToSend);
+				getSendFromLocal.then(function(settings) {
+					addStorageToSend(settings);
 				});
 			}
 
@@ -203,9 +209,9 @@ function getStructFromURL(request) {
 	req.onload = function() {
 		structJSONfromURL = req.response;
 		if (checkStrucValidity(structJSONfromURL,"JWT")) {
-			const getStructFromLocal = browser.storage.local.get();
-			getStructFromLocal.then(function(settings) {
-				checkStorage(settings,structJSONfromURL);
+			const getHistoryFromLocal = browser.storage.local.get();
+			getHistoryFromLocal.then(function(settings) {
+				addStorageHistory(settings,structJSONfromURL);
 			});
 		}
 	}
@@ -213,7 +219,7 @@ function getStructFromURL(request) {
 
 
 /*
-	Convert Base64 to ASCII
+	Convert Base64 to UTF-8
 */
 function b64_to_utf8(str) {
 	return decodeURIComponent(escape(window.atob(str)));
@@ -237,45 +243,60 @@ let concat;
 function checkStrucValidity(structToAnalyse,type) {
 	// var result = false;
 	if (type == "JWT") {  // If it's a JWT structure
-		/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
-		Concates the header and the payload with a "."
-		Encode everythings with an ArrayBuffer for the cyrpto function and then verify the proof with the public key */
-		let parts = structToAnalyse.split('.');
-		let header = parts[0];
-		let data = parts[1];
-		let dataASCII = JSON.parse(b64_to_utf8(header));
-		let schemaURL = dataASCII['vc']['credentialSchema']['id'];
-		let schemaReq = new XMLHttpRequest();
-		schemaReq.open('GET', schemaURL);
-		schemaReq.responseType = 'json';
-		schemaReq.send();
-		
-		schemaReq.onload = function() { //Take the schema from the URI
-			let schemaVerif = schemaReq.response;
-			if (verifySchema(schemaVerif,dataASCII['vc'])) {
-				let proof = parts[2];
-				let encodedProof = getStructEncoding(proof);
+		for (var loopListVC of structToAnalyse['listVC']) {
+			/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
+			Concates the header and the payload with a "."
+			Encode everythings with an ArrayBuffer for the cyrpto function and then verify the proof with the public key */
+			let parts = loopListVC.split('.');
+			let header = parts[0];
+			let data = parts[1];
+			let dataUTF = JSON.parse(b64_to_utf8(data));
 
-				concat = header.concat('.').concat(data); // Concat the header with the payload
-				let encoded = getStructEncoding(concat);
+			if (!parseVC(dataUTF['vc'])) {
+				console.log("Problem with VC parser");
+				return false;
+			}
 
-				let headerASCII = JSON.parse(b64_to_utf8(header));
-				let keyURL = headerASCII.kid;
-				let keyReq = new XMLHttpRequest();
-				keyReq.open('GET', keyURL);
-				keyReq.responseType = 'string';
-				keyReq.send();
-				keyReq.onload = function() { //Take the public key from the URI
-					let publicKey = keyReq.response;
-					window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
-						if (!result) {
-							onError(result);
-						}
-						return result;
-					});
+			let schemaURL = dataUTF['vc']['credentialSchema']['id'];
+			let schemaReq = new XMLHttpRequest();
+			schemaReq.open('GET', schemaURL);
+			schemaReq.responseType = 'json';
+			schemaReq.send();
+			
+			schemaReq.onload = function() { //Take the schema from the URI
+				let schemaVerif = schemaReq.response;
+				if (verifySchema(schemaVerif,dataUTF['vc'])) {
+					let proof = parts[2];
+					let encodedProof = getStructEncoding(proof);
+
+					concat = header.concat('.').concat(data); // Concat the header with the payload
+					let encoded = getStructEncoding(concat);
+
+					let headerUTF = JSON.parse(b64_to_utf8(header));
+					let keyURL = headerUTF.kid;
+					let keyReq = new XMLHttpRequest();
+					keyReq.open('GET', keyURL);
+					keyReq.responseType = 'string';
+					keyReq.send();
+					keyReq.onload = function() { //Take the public key from the URI
+						let publicKey = keyReq.response;
+						window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
+							if (!result) {
+								onError(result);
+								utfArray.splice(0,utfArray.length);
+								storageToSend.splice(0,storageToSend.length);
+								return result;
+							}
+							issuer = dataUTF['vc']['issuer'];
+							storageToSend.push(dataUTF['vc']);
+							utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF));
+							// return result;
+						});
+					}
 				}
 			}
 		}
+		return true;
 		
 		
 		// await window.crypto.subtle.sign({name: "RSASSA-PKCS1-v1_5",},privateKey,encoded).then(function(signature) {
@@ -286,15 +307,6 @@ function checkStrucValidity(structToAnalyse,type) {
 		// 	});
 		// });
 	} else{ // If it's a JSON-LD structure
-		// let proof = structToAnalyse.proof.signatureValue; // Recovers only the proof part
-		// var withoutProof = JSON.parse(JSON.stringify(structToAnalyse));
-		// delete withoutProof.proof;
-		// concat = JSON.stringify(withoutProof); // Recovers all the payload without the proof
-		// let encoded = getStructEncoding(concat);
-		// getStructFromURL(JSON.stringify(structToAnalyse.proof.verificationMethod)); //Take the public key
-		// let publicKey = key;
-		// result = await window.crypto.subtle.verify("RSASSA-PKCS1-v1_5", publicKey, proof, encoded);
-		// console.log(result);
 	}
 }
 
@@ -310,18 +322,6 @@ function verifySchema(schema,payload) {
 				console.log("Valide attributs");
 				if (typeof(payload[attributs]) == schema['properties'][checkAttributs]['type']) {
 					if (typeof(payload[attributs]) == "object") {
-						// for (var attributsInside in payload[attributs]) {
-						// 	for (var checkAttributsInside in schema['properties'][checkAttributs]['properties']) {
-						// 		if (attributsInside == checkAttributsInside) {
-						// 			if (typeof(payload[attributs][attributsInside]) == schema['properties'][checkAttributs]['properties'][checkAttributsInside]['type']) {
-						// 				console.log("Inside Valide");
-						// 			} else {
-						// 				console.log("Inside not valide");
-						// 				return false;
-						// 			}
-						// 		}
-						// 	}
-						// }
 						if (!verifySchema(schema['properties'][checkAttributs],payload[attributs])) {
 							return false;
 						}
@@ -337,20 +337,14 @@ function verifySchema(schema,payload) {
 	return true;
 }
 
-/*
-	Add the new structure in the structArray
-*/
-function pushArray(structToPush) {
-	structArray.push(structToPush);
-}
 
 /*
-	Verify the structArray to check if the structure is not already present
+	Verify the structArrayHistory to check if the structure is not already present
 */
 function loopArray(structToFind) {
-	console.log(structArray.length);
-	for (struct in structArray) {
-		if (JSON.stringify(structArray[struct]) == JSON.stringify(structToFind)) {
+	console.log(structArrayHistory.length);
+	for (struct in structArrayHistory) {
+		if (JSON.stringify(structArrayHistory[struct]) == JSON.stringify(structToFind)) {
 			return true;
 		}
 	}
@@ -358,25 +352,47 @@ function loopArray(structToFind) {
 }
 
 /*
-	Settings is the current local storage
-	Struct is the new structure to store
-	If the local storage doesn't know sructArray, it is add with the new structure
-	If the structArray is present, it is extracted from the local storage and send to loopArray to be analyzed
-	If the new structure is unknowed, it is added
+	This 2 functions allow to store the VCs received from the issuers for history purpose
 */
-function checkStorage(settings,struct) {
-	if(!settings.structArray) {
-		console.log("First");
-		pushArray(struct);
-		browser.storage.local.set({structArray});
+
+/*
+	Add the new structure in the structArrayHistory
+*/
+function pushArrayHistory(structToPush,issuer) {
+	let historyObject = {};
+	historyObject[issuer] = structToPush;
+	structArrayHistory.push(historyObject);
+}
+
+/*
+	Allow to add the new JWT structures to the history array in the local storage
+	If no array already exist, it is create, else it's just a push
+*/
+function addStorageHistory(settings) {
+	if(!settings.structArrayHistory) {
+		// console.log("No array");
+		pushArrayHistory(utfArray,issuer);
+		browser.storage.local.set({structArrayHistory});
 	} else {
-		console.log("Second");
-		structArray = settings.structArray;
-		if (!loopArray(struct)) {
-			console.log("third");
-			pushArray(struct);
-			browser.storage.local.set({structArray});
+		// console.log("Else");
+		structArrayHistory = settings.structArrayHistory;
+		pushArrayHistory(utfArray,issuer);
+		browser.storage.local.set({structArrayHistory});
+	}
+}
+
+
+/*
+	This function allows to store the VCs to send
+*/
+function addStorageToSend(settings) {
+	if(!settings.storageToSend) {
+		browser.storage.local.set({storageToSend});
+	} else {
+		for (var loopStorageToSend of settings.storageToSend) {
+			storageToSend.push(loopStorageToSend);
 		}
+		browser.storage.local.set({storageToSend});
 	}
 }
 
@@ -397,7 +413,10 @@ browser.webRequest.onBeforeRequest.addListener(
 
 
 
-
+/*
+	All the section above is the VC parser
+	It will make some verification for the VC validity
+*/
 var dictionary = {};
 var vcIsValid = true;
 
@@ -456,7 +475,7 @@ function parseVC(jsonObject){
 	// Around 15, I'll check it later
 	if(Object.keys(jsonObject).length > 15){
 		document.write("Error : Unknown field(s).")
-		return;
+		return false;
 	}
     
 	verifyContexts(jsonObject['@context']);
@@ -470,18 +489,12 @@ function parseVC(jsonObject){
 	verifyCredentialStatus(jsonObject['credentialStatus']);
 	verifyCredentialSubject(jsonObject['credentialSubject']);
 
-    if(!vcIsValid){
-    	document.write("Error. VC not valid.\n");
-    	return;
-    }else{
-    	var currentIssuer = browser.storage.local.get(dictionary[issuer]);
-    	if(currentIssuer == null){ // The issuer of this VC has others VC
-    		var VCs = [jsonObject];
-    		browser.storage.local.set(dictionary[issuer], VCs);
-    	}else{
-    		currentIssuer.push(jsonObject);
-    	}
-    }
+	if(!vcIsValid){
+		document.write("Error. VC not valid.\n");
+		return false;
+	}
+
+	return true;
 }
 
 /**
