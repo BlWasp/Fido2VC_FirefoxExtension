@@ -403,7 +403,7 @@ function addStorageToSend(settings) {
 // importPublicKey(jwtStruct,pemEncodedPublicKey);
 // generateRSAKey(jwtStruct);
 browser.webRequest.onBeforeRequest.addListener(
-	getStructFromURL,
+	getRespFromIDP,
 	{urls: ["https://fido/structIdp/*"]}
 );
 

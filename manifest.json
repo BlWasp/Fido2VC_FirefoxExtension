@@ -17,11 +17,6 @@
     "background_scripts/getFromSp.js"]
   },
 
-  // "content_scripts": [
-  //   {
-  //     "js": ["content_scripts/callSend.js"]
-  //   }
-  // ],
 
 // "background_scripts/test.js"
 
