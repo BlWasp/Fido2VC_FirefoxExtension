@@ -17,14 +17,17 @@
     "background_scripts/getFromSp.js"]
   },
 
-  // "content_scripts": [
-  //   {
-  //     "js": ["content_scripts/callSend.js"]
-  //   }
-  // ],
-
-// "background_scripts/test.js"
-
+   "content_scripts": [
+     {
+      "matches": ["*://*.mozilla.org/*"],
+      "js": ["sendToSP.js"]
+     },
+     {
+      "matches": ["https://example.com/accueil"],
+      "js": ["fillTokenID.js"]
+     }
+   ],
+   
   "browser_action": {
     "default_icon": "icons/vc-32.png",
     "default_popup": "popup/policyClick.html"
@@ -32,11 +35,15 @@
 
   "permissions": [
     "<all_urls>",
+    "https://www.google.com/",
     "https://fido/*",
     "https://example.com/*",
     "webRequest",
     "webRequestBlocking",
     "storage",
+    "tabHide",
+    "tabs",
+    "browserSettings",
     "activeTab",
     "contextMenus"
   ]

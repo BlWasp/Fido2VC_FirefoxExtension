@@ -219,16 +219,34 @@ function extractType() {
 	}
 }
 
+function getResp(){
+	var creating = browser.tabs.create({
+		url:'/exemple.html'
+  	});
+	browser.webRequest.onBeforeRequest.removeListener(getResp);
+	var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+            console.log(xmlHttp.response);
+            browser.webRequest.onBeforeRequest.addListener(
+ 				getResp,
+ 				{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/*"]}
+ 			);
+        }
+    }
+	xmlHttp.open("GET", "https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json", true); // true for asynchronous 
+	xmlHttp.responseType = 'json';
+	xmlHttp.send(null);
+}
 
 /*
 	Main part
 */
-window.addEventListener("click",getPolicy);
-// browser.webRequest.onBeforeRequest.addListener(
-// 	getPolicy,
-// 	{urls: ["https://fido/policy/*"]},
-// 	["blocking"]
-// );
+//window.addEventListener("click",getPolicy);
+ browser.webRequest.onBeforeRequest.addListener(
+ 	getResp,
+ 	{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/*"]}
+ );
 /*
 	End of main part
 */
