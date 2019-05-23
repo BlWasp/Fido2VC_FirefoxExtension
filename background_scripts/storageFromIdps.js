@@ -32,9 +32,9 @@ var jsonStruc = {
 }
 
 /*
-	Default test JWT structure with proof
+	Default test payload structure with proof
 */
-var jwtStruct = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDpleGFtcGxlOmFiZmUxM2Y3MTIxMjA0MzFjMjc2ZTEyZWNhYiNrZXlzLTEifQ.eyJzdWIiOiJkaWQ6ZXhhbXBsZTplYmZlYjFmNzEyZWJjNmYxYzI3NmUxMmVjMjEiLCJqdGkiOiJodHRwOi8vZXhhbXBsZS5lZHUvY3JlZGVudGlhbHMvMzczMiIsImlzcyI6ImRpZDpleGFtcGxlOmFiZmUxM2Y3MTIxMjA0MzFjMjc2ZTEyZWNhYiIsImlhdCI6IjE1NDE0OTM3MjQiLCJleHAiOiIxNTczMDI5NzIzIiwibm9uY2UiOiI2NjAhNjM0NUZTZXIiLCJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3czLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9leGFtcGxlLmNvbS9leGFtcGxlcy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVW5pdmVyc2l0eURlZ3JlZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiZGVncmVlIjp7InR5cGUiOiJCYWNoZWxvckRlZ3JlZSIsIm5hbWUiOiJCYWNoZWxvciBvZiBTY2llbmNlIGluIE1lY2hhbmljYWwgRW5naW5lZXJpbmcifX19fQ.ZVr7y8JREGqA2hwL_eSfMgjaLwwwq1rGU6j3JgltZp_BoKrBcIZxT8-f8pahiX8uMRZb4eg_qj_TJ59f-64_Qd5qOfYiO2iGRZ2HMitcFbPHj8_fW0zISFQVMK7EauSuUmmm48xiRTUkM0tOeU4IgmoNHRBtrs23f5exHinundQ3etaC0B-Nl3-qNS9pQWZARW9kG_UIvVvYJdZOV94pEv5ws8aU3-3Cabr-ivn-4_PcqF8rVuu-XK5qZBag90UCx7-7NQorre2CeJIiOwUryuCNWvUqzOEiCJayqk1-HJy51UBIPUbYnogo064Aw35NeQKJd4VssJlIUhTI1-SjSQ";
+var payloadStruct = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDpleGFtcGxlOmFiZmUxM2Y3MTIxMjA0MzFjMjc2ZTEyZWNhYiNrZXlzLTEifQ.eyJzdWIiOiJkaWQ6ZXhhbXBsZTplYmZlYjFmNzEyZWJjNmYxYzI3NmUxMmVjMjEiLCJqdGkiOiJodHRwOi8vZXhhbXBsZS5lZHUvY3JlZGVudGlhbHMvMzczMiIsImlzcyI6ImRpZDpleGFtcGxlOmFiZmUxM2Y3MTIxMjA0MzFjMjc2ZTEyZWNhYiIsImlhdCI6IjE1NDE0OTM3MjQiLCJleHAiOiIxNTczMDI5NzIzIiwibm9uY2UiOiI2NjAhNjM0NUZTZXIiLCJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3czLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9leGFtcGxlLmNvbS9leGFtcGxlcy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVW5pdmVyc2l0eURlZ3JlZUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiZGVncmVlIjp7InR5cGUiOiJCYWNoZWxvckRlZ3JlZSIsIm5hbWUiOiJCYWNoZWxvciBvZiBTY2llbmNlIGluIE1lY2hhbmljYWwgRW5naW5lZXJpbmcifX19fQ.ZVr7y8JREGqA2hwL_eSfMgjaLwwwq1rGU6j3JgltZp_BoKrBcIZxT8-f8pahiX8uMRZb4eg_qj_TJ59f-64_Qd5qOfYiO2iGRZ2HMitcFbPHj8_fW0zISFQVMK7EauSuUmmm48xiRTUkM0tOeU4IgmoNHRBtrs23f5exHinundQ3etaC0B-Nl3-qNS9pQWZARW9kG_UIvVvYJdZOV94pEv5ws8aU3-3Cabr-ivn-4_PcqF8rVuu-XK5qZBag90UCx7-7NQorre2CeJIiOwUryuCNWvUqzOEiCJayqk1-HJy51UBIPUbYnogo064Aw35NeQKJd4VssJlIUhTI1-SjSQ";
 
 /*
 	Error logger
@@ -165,17 +165,19 @@ var issuer;
 
 /*
 	Take the URL where the JSON structure is stored
-	Prepare a XHR request and send it to the server to take the whole JSON-LD or JWT structure
+	Prepare a XHR request and send it to the server to take the whole JSON-LD or payload structure
 */
 var structJSONfromURL;
 function getRespFromIDP(){
-	browser.webRequest.onBeforeRequest.removeListener(getResp);
+	console.log("jkfjkfhkjfsjkfdskjhfsjkfjkjfkskjfds");
+	browser.webRequest.onBeforeRequest.removeListener(getRespFromIDP);
 	var xmlHttp = new XMLHttpRequest();
-	let reqURL = document.location.href;
+	let reqURL = "https://example.com:5000/verifiable_credentials";
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
         	structJSONfromURL = xmlHttp.response;
-        	if (checkStrucValidity(structJSONfromURL,"JWT")) {
+        	console.log(structJSONfromURL);
+        	if (checkStrucValidity(structJSONfromURL,"payload")) {
 				const getHistoryFromLocal = browser.storage.local.get(structArrayHistory);
 				getHistoryFromLocal.then(function(settings) {
 					addStorageHistory(settings);
@@ -187,8 +189,8 @@ function getRespFromIDP(){
 			}
 
             browser.webRequest.onBeforeRequest.addListener(
- 				getResp,
- 				{urls: ["https://fido/structIdp/*"]}
+ 				getRespFromIDP,
+ 				{urls: ["https://example.com/verifiable_credentials"]}
  			);
         }
     }
@@ -208,7 +210,7 @@ function getStructFromURL(request) {
 
 	req.onload = function() {
 		structJSONfromURL = req.response;
-		if (checkStrucValidity(structJSONfromURL,"JWT")) {
+		if (checkStrucValidity(structJSONfromURL,"payload")) {
 			const getHistoryFromLocal = browser.storage.local.get();
 			getHistoryFromLocal.then(function(settings) {
 				addStorageHistory(settings,structJSONfromURL);
@@ -235,15 +237,15 @@ function getStructEncoding(struct) {
 
 
 /*
-	When a new JSON-LD or JWT structure is received this function check the validity with the proof
+	When a new JSON-LD or payload structure is received this function check the validity with the proof
 	Also check de expiration validity
 */
 // let signature;
 let concat;
 function checkStrucValidity(structToAnalyse,type) {
 	// var result = false;
-	if (type == "JWT") {  // If it's a JWT structure
-		for (var loopListVC of structToAnalyse['listVC']) {
+	if (type == "payload") {  // If it's a payload structure
+		for (var loopListVC of structToAnalyse['vcList']) {
 			/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
 			Concates the header and the payload with a "."
 			Encode everythings with an ArrayBuffer for the cyrpto function and then verify the proof with the public key */
@@ -252,20 +254,11 @@ function checkStrucValidity(structToAnalyse,type) {
 			let data = parts[1];
 			let dataUTF = JSON.parse(b64_to_utf8(data));
 
-			if (!parseVC(dataUTF['vc'])) {
+			if (!parseVC(JWTtoJSLD(dataUTF))) {
 				console.log("Problem with VC parser");
 				return false;
 			}
-
-			let schemaURL = dataUTF['vc']['credentialSchema']['id'];
-			let schemaReq = new XMLHttpRequest();
-			schemaReq.open('GET', schemaURL);
-			schemaReq.responseType = 'json';
-			schemaReq.send();
-			
-			schemaReq.onload = function() { //Take the schema from the URI
-				let schemaVerif = schemaReq.response;
-				if (verifySchema(schemaVerif,dataUTF['vc'])) {
+					console.log("VC parse OK");
 					let proof = parts[2];
 					let encodedProof = getStructEncoding(proof);
 
@@ -273,14 +266,9 @@ function checkStrucValidity(structToAnalyse,type) {
 					let encoded = getStructEncoding(concat);
 
 					let headerUTF = JSON.parse(b64_to_utf8(header));
-					let keyURL = headerUTF.kid;
-					let keyReq = new XMLHttpRequest();
-					keyReq.open('GET', keyURL);
-					keyReq.responseType = 'string';
-					keyReq.send();
-					keyReq.onload = function() { //Take the public key from the URI
-						let publicKey = keyReq.response;
-						window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
+					let publicKey = headerUTF.kid;
+					console.log(publicKey);
+					window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
 							if (!result) {
 								onError(result);
 								utfArray.splice(0,utfArray.length);
@@ -291,10 +279,45 @@ function checkStrucValidity(structToAnalyse,type) {
 							storageToSend.push(dataUTF['vc']);
 							utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF));
 							// return result;
-						});
-					}
-				}
-			}
+					});
+			// let schemaURL = dataUTF['vc']['credentialSchema']['id'];
+			// let schemaReq = new XMLHttpRequest();
+			// schemaReq.open('GET', schemaURL);
+			// schemaReq.responseType = 'json';
+			// schemaReq.send();
+			
+			// schemaReq.onload = function() { //Take the schema from the URI
+			// 	let schemaVerif = schemaReq.response;
+			// 	if (verifySchema(schemaVerif,dataUTF['vc'])) {
+			// 		let proof = parts[2];
+			// 		let encodedProof = getStructEncoding(proof);
+
+			// 		concat = header.concat('.').concat(data); // Concat the header with the payload
+			// 		let encoded = getStructEncoding(concat);
+
+			// 		let headerUTF = JSON.parse(b64_to_utf8(header));
+			// 		let keyURL = headerUTF.kid;
+			// 		let keyReq = new XMLHttpRequest();
+			// 		keyReq.open('GET', keyURL);
+			// 		keyReq.responseType = 'string';
+			// 		keyReq.send();
+			// 		keyReq.onload = function() { //Take the public key from the URI
+			// 			let publicKey = keyReq.response;
+			// 			window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
+			// 				if (!result) {
+			// 					onError(result);
+			// 					utfArray.splice(0,utfArray.length);
+			// 					storageToSend.splice(0,storageToSend.length);
+			// 					return result;
+			// 				}
+			// 				issuer = dataUTF['vc']['issuer'];
+			// 				storageToSend.push(dataUTF['vc']);
+			// 				utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF));
+			// 				// return result;
+			// 			});
+			// 		}
+			// 	}
+			// }
 		}
 		return true;
 		
@@ -365,7 +388,7 @@ function pushArrayHistory(structToPush,issuer) {
 }
 
 /*
-	Allow to add the new JWT structures to the history array in the local storage
+	Allow to add the new payload structures to the history array in the local storage
 	If no array already exist, it is create, else it's just a push
 */
 function addStorageHistory(settings) {
@@ -400,11 +423,11 @@ function addStorageToSend(settings) {
 /*
 	Main part
 */
-// importPublicKey(jwtStruct,pemEncodedPublicKey);
-// generateRSAKey(jwtStruct);
+// importPublicKey(payloadStruct,pemEncodedPublicKey);
+// generateRSAKey(payloadStruct);
 browser.webRequest.onBeforeRequest.addListener(
 	getRespFromIDP,
-	{urls: ["https://fido/structIdp/*"]}
+	{urls: ["https://example.com/verifiable_credentials"]}
 );
 
 /*
@@ -465,6 +488,16 @@ var vc = {
   	}
 };
 
+function JWTtoJSLD(payload){
+	var vc = payload['vc'];
+	vc['id'] = payload['jti'];
+	vc['issuer'] =  payload['iss'];
+	vc['credentialSubject']['id'] = payload['sub'];
+	vc['expirationDate'] = new Date(payload['exp']* 1000);
+	vc['issuanceDate'] = new Date(payload['iat']* 1000);
+	return vc;
+}
+
 /**
  * Check the correct syntax of a VC and store attributes (Where????)
  *
@@ -474,15 +507,15 @@ function parseVC(jsonObject){
 
 	// Around 15, I'll check it later
 	if(Object.keys(jsonObject).length > 15){
-		document.write("Error : Unknown field(s).")
+		console.log("Error : Unknown field(s).")
 		return false;
 	}
     
-	verifyContexts(jsonObject['@context']);
+	//verifyContexts(jsonObject['@context']);
 	verifyType(jsonObject['type']);
     verifyIssuanceDate(jsonObject['issuanceDate']);
 	verifyExpirationDate(jsonObject['expirationDate']);
-    verifyIssuer(jsonObject['issuer']);
+    //verifyIssuer(jsonObject['issuer']);
     verifyRefreshService(jsonObject['refreshService']);
 	verifyTermsOfUse(jsonObject['termsOfUse']);
 	verifyTransferable(jsonObject['nonTransferable']);
@@ -490,7 +523,7 @@ function parseVC(jsonObject){
 	verifyCredentialSubject(jsonObject['credentialSubject']);
 
 	if(!vcIsValid){
-		document.write("Error. VC not valid.\n");
+		console.log("Error. VC not valid.\n");
 		return false;
 	}
 
@@ -505,20 +538,20 @@ function parseVC(jsonObject){
  */
 function verifyContexts(contexts) {
 	if(contexts == null){
-		document.write("Error : no @contexts property.\n");
+		console.log("Error : no @contexts property.\n");
 		vcIsValid = false;
 	}
 	if(contexts[0] != 'https://www.w3.org/2018/credentials/v1'){
-		document.write("Error. First @context property value is not https://www.w3.org/2018/credentials/v1\n");
+		console.log("Error. First @context property value is not https://www.w3.org/2018/credentials/v1\n");
 		vcIsValid = false;
 	}
 
-	let knownContexts = browser.storage.local.get("knownContexts");
+	let knownContexts = browser.storage.local.get('knownContexts');
 
 	for(var i = 1; i < contexts.length; i++)
 	{
      	if(!knownContexts.includes(contexts[i])){
-     		document.write("Error : " + contexts[i] + " is not known.");
+     		console.log("Error : " + contexts[i] + " is not known.");
      		vcIsValid = false;
      		return;
      	}
@@ -533,12 +566,12 @@ function verifyContexts(contexts) {
  */
 function verifyType(types){
 	if(types == null){
-		document.write("Error: VC type is not present.");
+		console.log("Error: VC type is not present.");
 		vcIsValid = false;
 		return;
 	}
 	if(!types.includes('VerifiableCredential')){
-		document.write("Error : VC do not contains VerifiableCredential type");
+		console.log("Error : VC do not contains VerifiableCredential type");
 		vcIsValid = false;
 		return;
 	}
@@ -553,13 +586,13 @@ function verifyType(types){
  */
 function verifyIssuanceDate(issuanceDate){
 	if(issuanceDate == null){
-		document.write("Error: Issuance date is not present.");
+		console.log("Error: Issuance date is not present.");
 		vcIsValid = false;
 		return;
 	}
 	validateDateFormat(issuanceDate);
     if(Date.now() < Date.parse(issuanceDate)){
-    	document.write("Warning : the VC is valid from " + issuanceDate);
+    	console.log("Warning : the VC is valid from " + issuanceDate);
     }
     dictionary['issuanceDate'] = issuanceDate;
 }
@@ -572,7 +605,7 @@ function verifyIssuanceDate(issuanceDate){
 function validateDateFormat(date){
 	let d = Date.parse(date);
     if(isNaN(d)){
-    	document.write("Error: Expiration date is in wrong format.");
+    	console.log("Error: Expiration date is in wrong format.");
         vcIsValid = false;
         return;
     }
@@ -585,7 +618,7 @@ function validateDateFormat(date){
  */
 function verifyIssuer(issuer){
 	if(issuer == null){
-		document.write("Error: VC does not contain an issuer.");
+		console.log("Error: VC does not contain an issuer.");
 		vcIsValid = false;
 		return;
 	}
@@ -595,7 +628,7 @@ function verifyIssuer(issuer){
 		dictionary['issuer'] = issuer; 
 	}
 	else{
-		document.write("Error : the issuer is not trusted");
+		console.log("Error : the issuer is not trusted");
 		vcIsValid = false;
 	}
 }
@@ -607,13 +640,13 @@ function verifyIssuer(issuer){
  */
 function verifyExpirationDate(expirationDate){
 	if(expirationDate == null){
-		document.write("Error: Expiration date is not present.");
+		console.log("Error: Expiration date is not present.");
 		vcIsValid = false;
 		return;
 	}
 	validateDateFormat(expirationDate);
 	 if(Date.now() > Date.parse(expirationDate)){
-    	document.write("Error: VC has expired since " + expirationDate);
+    	console.log("Error: VC has expired since " + expirationDate);
     }
     dictionary['expirationDate'] = expirationDate;
 }
@@ -625,7 +658,7 @@ function verifyExpirationDate(expirationDate){
  */
 function verifyRefreshService(refreshService){
 	if(refreshService != null){
-		document.write("Warning: VC is privacy invasive and has refreshService");
+		console.log("Warning: VC is privacy invasive and has refreshService");
 		dictionary['refreshService'] = refreshService;
 	}
 }
@@ -634,7 +667,7 @@ function verifyRefreshService(refreshService){
 function verifyTermsOfUse(termsOfUse){
 	if(termsOfUse != null){
 		if(termsOfUse['type'] == null){
-			document.write("Error: Terms of use does not have a type.");
+			console.log("Error: Terms of use does not have a type.");
 			vcIsValid = false;
 			return;
 		}
@@ -655,7 +688,7 @@ function verifyTransferable(transferable){
 	if (transferable != null) {
 		if(transferable != 'True'){
 			vcIsValid = false;
-			document.write("Error: Unknown value for non transferrable property.");
+			console.log("Error: Unknown value for non transferrable property.");
 			return;
 		}else{
 			dictionary['transferable'] = new Boolean(true);
@@ -671,12 +704,12 @@ function verifyTransferable(transferable){
 function verifyCredentialStatus(credentialStatus){
 	if(credentialStatus != null){
 		if(credentialStatus['id'] == null){
-			document.write("Error: status does not contain an ID.");
+			console.log("Error: status does not contain an ID.");
 			vcIsValid = false;
 			return;
 		}
 		if(credentialStatus['type'] == null){
-			document.write("Error: status does not contain a type.");
+			console.log("Error: status does not contain a type.");
 			vcIsValid = false;
 			return;
 		}
@@ -691,22 +724,22 @@ function verifyCredentialStatus(credentialStatus){
  */
 function verifyCredentialSubject(credentialSubject){
 	if(credentialSubject == null){
-		document.write("Error : VC subject is not present.");
+		console.log("Error : VC subject is not present.");
 		vcIsValid = false;
 		return;
 	}
 	dictionary['idSubject'] = credentialSubject['id'];
 	if(credentialSubject['currentStatus'] != null){
 		if(credentialSubject['currentStatus'] != 'Revoked' && credentialSubject['currentStatus'] != 'Disputed'){
-			document.write("Error: Unknown VC status.");
+			console.log("Error: Unknown VC status.");
 			vcIsValid = false;
 			return;
 		}
 		if(credentialSubject['currentStatus'] === 'Disputed'){
-			document.write("The VC with id " + dictionary['idSubject'] + " is disputed by subject " + dictionary['issuer']);
+			console.log("The VC with id " + dictionary['idSubject'] + " is disputed by subject " + dictionary['issuer']);
 		}
 		if(credentialSubject['currentStatus'] === 'Revoked'){
-			document.write("The VC with id " + dictionary['idSubject'] + " is revoked");
+			console.log("The VC with id " + dictionary['idSubject'] + " is revoked");
 		}
 	}
 	dictionary['credentialSubject'] = credentialSubject;

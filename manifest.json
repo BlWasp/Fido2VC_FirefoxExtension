@@ -13,7 +13,6 @@
   "background": {
     "scripts": 
     ["background_scripts/storageFromIdps.js",
-    "background_scripts/parserVC.js",
     "background_scripts/getFromSp.js"]
   },
 

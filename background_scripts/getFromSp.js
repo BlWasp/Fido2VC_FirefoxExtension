@@ -253,7 +253,7 @@ function getResp(request){
 
             browser.webRequest.onBeforeRequest.addListener(
  				getResp,
- 				{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/*"]}
+ 				{urls: ["https://example.com/policy"]}
  			);
         }
     }
@@ -268,7 +268,7 @@ function getResp(request){
 //window.addEventListener("click",getPolicy);
  browser.webRequest.onBeforeRequest.addListener(
  	getResp,
- 	{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/*"]}
+ 	{urls: ["https://example.com/policy"]}
  );
 /*
 	End of main part
