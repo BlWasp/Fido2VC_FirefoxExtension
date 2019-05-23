@@ -252,20 +252,20 @@ function checkStrucValidity(structToAnalyse,type) {
 			let data = parts[1];
 			let dataUTF = JSON.parse(b64_to_utf8(data));
 
-			if (!parseVC(dataUTF['vc'])) {
+			if (!parseVC(dataUTF)) {
 				console.log("Problem with VC parser");
 				return false;
 			}
 
-			let schemaURL = dataUTF['vc']['credentialSchema']['id'];
-			let schemaReq = new XMLHttpRequest();
-			schemaReq.open('GET', schemaURL);
-			schemaReq.responseType = 'json';
-			schemaReq.send();
+			// let schemaURL = dataUTF['vc']['credentialSchema']['id'];
+			// let schemaReq = new XMLHttpRequest();
+			// schemaReq.open('GET', schemaURL);
+			// schemaReq.responseType = 'json';
+			// schemaReq.send();
 			
-			schemaReq.onload = function() { //Take the schema from the URI
-				let schemaVerif = schemaReq.response;
-				if (verifySchema(schemaVerif,dataUTF['vc'])) {
+			// schemaReq.onload = function() { //Take the schema from the URI
+			// 	let schemaVerif = schemaReq.response;
+			// 	if (verifySchema(schemaVerif,dataUTF['vc'])) {
 					let proof = parts[2];
 					let encodedProof = getStructEncoding(proof);
 
@@ -273,28 +273,21 @@ function checkStrucValidity(structToAnalyse,type) {
 					let encoded = getStructEncoding(concat);
 
 					let headerUTF = JSON.parse(b64_to_utf8(header));
-					let keyURL = headerUTF.kid;
-					let keyReq = new XMLHttpRequest();
-					keyReq.open('GET', keyURL);
-					keyReq.responseType = 'string';
-					keyReq.send();
-					keyReq.onload = function() { //Take the public key from the URI
-						let publicKey = keyReq.response;
-						window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
-							if (!result) {
-								onError(result);
-								utfArray.splice(0,utfArray.length);
-								storageToSend.splice(0,storageToSend.length);
-								return result;
-							}
-							issuer = dataUTF['vc']['issuer'];
-							storageToSend.push(dataUTF['vc']);
-							utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF));
-							// return result;
-						});
-					}
-				}
-			}
+					let publicKey = headerUTF.kid;
+					window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,encodedProof,encoded).then(function(result) {
+						if (!result) {
+							onError(result);
+							utfArray.splice(0,utfArray.length);
+							storageToSend.splice(0,storageToSend.length);
+							return result;
+						}
+						issuer = dataUTF['vc']['issuer'];
+						storageToSend.push(dataUTF['vc']);
+						utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF));
+						// return result;
+					});
+			// 	}
+			// }
 		}
 		return true;
 		
