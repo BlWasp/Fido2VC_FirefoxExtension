@@ -27,7 +27,7 @@
       "js": ["fillTokenID.js"]
      }
    ],
-   
+
   "browser_action": {
     "default_icon": "icons/vc-32.png",
     "default_popup": "popup/policyClick.html"
