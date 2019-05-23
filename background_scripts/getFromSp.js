@@ -86,19 +86,19 @@ function onGot(item) {
 	The Service Provider give a JSON structure with the Policy in DNF or CNF
 	This function take the structure and give it to the parser
 */
-var policy;
-function getPolicy() {
-	let reqURL = document.location.href;
-	let req = new XMLHttpRequest();
-	req.open('GET', reqURL);
-	req.responseType = 'json';
-	req.send();
+// var policy;
+// function getPolicy() {
+// 	let reqURL = document.location.href;
+// 	let req = new XMLHttpRequest();
+// 	req.open('GET', reqURL);
+// 	req.responseType = 'json';
+// 	req.send();
 
-	req.onload = function() {
-		policy = req.response;
-		extractType(policy);
-	}
-}
+// 	req.onload = function() {
+// 		policy = req.response;
+// 		extractType(policy);
+// 	}
+// }
 
 
 /*
@@ -143,10 +143,10 @@ function extractCredentialSubject(policyStructSubject) {
 	}
 }
 
-function extractType() {
+function extractType(policyStruct) {
 	vc = open("",'popup','width=400,height=400,toolbar=no,scrollbars=yes,resizable=yes');
 
-	var policyStruct = policyTest;
+	// var policyStruct = policyTest;
 	var type = policyStruct['policy']['type'];
 	var key = Object.keys(policyStruct['policy']);
 	if (type == "CNF") {
@@ -219,22 +219,45 @@ function extractType() {
 	}
 }
 
-function getResp(){
-	var creating = browser.tabs.create({
-		url:'/exemple.html'
-  	});
+/*
+	Storage
+*/
+var spStorage = [];
+function storageFromSp(settings,struct,issuer) {
+	let spObject = {};
+	if (!settings.spStorage) {
+		spObject[issuer] = struct;
+		spStorage.push(spObject);
+		browser.storage.local.set({spStorage});
+	} else {
+		spStorage = settings.spStorage;
+		spObject[issuer] = struct;
+		spStorage.push(spObject);
+		browser.storage.local.set({spStorage});
+	}
+}
+
+
+function getResp(request){
 	browser.webRequest.onBeforeRequest.removeListener(getResp);
 	var xmlHttp = new XMLHttpRequest();
+	var respURL = request.url;
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
             console.log(xmlHttp.response);
+            const getSpFromLocal = browser.storage.local.get(spStorage);
+            getSpFromLocal.then(function(settings) {
+				storageFromSp(settings,xmlHttp.response,xmlHttp.response['issuer']);
+            });
+            extractType(xmlHttp.response['authz_policy']);
+
             browser.webRequest.onBeforeRequest.addListener(
  				getResp,
  				{urls: ["https://mdn.github.io/learning-area/javascript/oojs/json/*"]}
  			);
         }
     }
-	xmlHttp.open("GET", "https://mdn.github.io/learning-area/javascript/oojs/json/superheroes.json", true); // true for asynchronous 
+	xmlHttp.open("GET", respURL, true); // true for asynchronous 
 	xmlHttp.responseType = 'json';
 	xmlHttp.send(null);
 }
