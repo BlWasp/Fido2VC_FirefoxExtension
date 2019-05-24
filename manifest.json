@@ -13,24 +13,24 @@
   "background": {
     "scripts": 
     ["background_scripts/storageFromIdps.js",
-    "background_scripts/getFromSp.js"]
+    "background_scripts/getFromSp.js",
+    "background_scripts/openVcTab.js"]
   },
 
    "content_scripts": [
      {
+      "matches": ["*://*.mozilla.org/*"],
+      "js": ["content_scripts/sendToSP.js"]
+     },
+     {
       "matches": ["https://example.com/accueil"],
-      "js": ["fillTokenID.js"]
+      "js": ["content_scripts/fillTokenID.js"]
      },
      {
       "matches": ["<all_urls>"],
       "js": ["content_scripts/sendVP.js"]
      }
    ],
-
-    // {
-    //   "matches": ["*://*.mozilla.org/*"],
-    //   "js": ["sendToSP.js"]
-    //  },
 
   "browser_action": {
     "default_icon": "icons/vc-32.png",
