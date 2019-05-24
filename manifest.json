@@ -45,6 +45,7 @@
     "tabs",
     "browserSettings",
     "activeTab",
-    "contextMenus"
+    "contextMenus",
+    "notifications"
   ]
 }
