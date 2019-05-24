@@ -286,7 +286,7 @@ function checkStrucValidity(structToAnalyse,type) {
 						}
 						issuer = dataUTF['vc']['issuer'];
 						storageToSend.push(dataUTF['vc']);
-						utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF));
+						utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(dataUTF)); // For the history
 						// return result;
 					});
 

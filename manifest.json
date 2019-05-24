@@ -13,14 +13,17 @@
   "background": {
     "scripts": 
     ["background_scripts/storageFromIdps.js",
-    "background_scripts/getFromSp.js",
-    "background_scripts/callSend.js"]
+    "background_scripts/getFromSp.js"]
   },
 
    "content_scripts": [
      {
       "matches": ["https://example.com/accueil"],
       "js": ["fillTokenID.js"]
+     },
+     {
+      "matches": ["<all_urls>"],
+      "js": ["content_scripts/sendVP.js"]
      }
    ],
 

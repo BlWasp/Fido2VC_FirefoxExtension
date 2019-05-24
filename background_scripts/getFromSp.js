@@ -262,6 +262,7 @@ function getResp(request){
 	xmlHttp.send(null);
 }
 
+
 /*
 	Main part
 */

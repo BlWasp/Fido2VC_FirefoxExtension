@@ -1,10 +1,6 @@
 /*
-  Copyright: Copyright (c) 2019 University of Toulouse, France and
-  University of Kent, UK
-*/
-
-/*
-  Two default structures for tests purpose
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
 */
 var jsonStruc = {
   "@context": [
@@ -92,7 +88,9 @@ function makeVP(...VC) {
   for (var loopArguments of arguments) {
     payload['vp']['verifiableCredential'].push(loopArguments);
   }
+  payload["sub"] = browser.storage.local.get(spStorage[0]['user_token']);
   console.log(payload);
+  
   let b64Header = utf8_to_b64(JSON.stringify(header));
   let b64Payload = utf8_to_b64(JSON.stringify(payload));
   let b64VP = b64Header+"."+b64Payload;
@@ -104,7 +102,7 @@ function makeVP(...VC) {
                             allowCredentials: [{ type: "public-key", id: new Uint8Array([183, 148, 245]) }]
                             };
     navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
-      console.log("Signature du hash du VP réussi !");
+      console.log("Signature done !");
     }).catch(function (err) {
           console.log("Error navigator.credentials.get, wrong credentialID...");
           toSend = 4;
@@ -122,30 +120,66 @@ function _base64ToArrayBuffer(base64) {
     return bytes.buffer;
 }
 
+
+/*
+  All the section bellow is about notification
+*/
+window.addEventListener('load', function() {
+  Notification.requestPermission(function (status) {
+    if (Notification.permission !== status) {
+      Notification.permission = status;
+    }
+  });
+});
+
+console.log(Notification.permission);
+
+if (window.Notification && Notification.permission === "granted") {
+  var notif = new Notification("Click here to sign and send the VP");
+  notif.onclick = function(event) {
+    sendViaXHR();
+  }
+}
+
+// browser.notifications.create("signature", {
+// 	"type": "basic",
+// 	"iconUrl": "/icons/vc-48.png",
+// 	"title": "Signature",
+// 	"message": "Click here to sign and send the VP"
+// });
+
+// browser.notifications.onClicked.addListener(() => {
+// 	makeVP(jsonStruc,jsonStruc2);
+// });
+
+
  /*
   Send the array from makeVP to the SP server
  */
-// function sendViaXHR() {
-//  let url = document.location.href;
-//  var xhrVP = new XMLHttpRequest();
-//  xhrVP.open("POST", url, true);
-//  // xhrVP.setRequestHeader("json", );
+function sendViaXHR() {
+  let url = document.location.href;
+  var xhrVP = new XMLHttpRequest();
+  xhrVP.open("POST", url, true);
+  // xhrVP.setRequestHeader("json", );
 
-//  xhrVP.onreadystatechange = function() {
-//    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-//      console.log("Request send");
-//      }
-//  }
-//  xhrVP.send(makeVP(jsonStruc,jsonStruc2));
-// }
-
-/*
-  Main part
-*/
-
-
-function test(){
-  var ret = makeVP(jsonStruc,jsonStruc2);
-  console.log(ret[0]);
-  console.log(ret[1]);
+  xhrVP.onreadystatechange = function() {
+    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+      console.log("Request send");
+    }
+  }
+  xhrVP.send(makeVP(jsonStruc,jsonStruc2));
 }
+
+
+// browser.contextMenus.create({
+// 	id: "sign",
+// 	title: "Sign this VP"
+// });
+
+// browser.contextMenus.onClicked.addListener(function(info, tab) {
+// 	if (info.menuItemId == "sign") {
+// 		browser.tabs.executeScript({
+// 			file: "/background_scripts/sendVP.js"
+// 		});
+// 	}
+// });
