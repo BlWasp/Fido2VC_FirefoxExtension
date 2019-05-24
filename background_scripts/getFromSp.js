@@ -237,7 +237,6 @@ function storageFromSp(settings,struct,issuer) {
 	}
 }
 
-
 function getResp(request){
 	browser.webRequest.onBeforeRequest.removeListener(getResp);
 	var xmlHttp = new XMLHttpRequest();
@@ -265,7 +264,6 @@ function getResp(request){
 /*
 	Main part
 */
-//window.addEventListener("click",getPolicy);
  browser.webRequest.onBeforeRequest.addListener(
  	getResp,
  	{urls: ["https://example.com/policy"]}

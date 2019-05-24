@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Sending informations</title>
-    <link rel="stylesheet" type="text/css" href="mystyle.css">
-  </head>
-  <body>
-  	<h1>Choose what you want to send</h1>
-
-  <script type="text/javascript">
   	var jsonStruc = {
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
@@ -55,67 +45,8 @@ var jsonStruc2 = {
     "signatureValue": "BavEll0/I1zpYw8XNi1bgVg/sCneO4Jugez8RwDg/+MCRVpjOboDoe4SxxKjkCOvKiCHGDvc4krqi6Z1n0UfqzxGfmatCuFibcC1wpsPRdW+gGsutPTLzvueMWmFhwYmfIFpbBu95t501+rSLHIEuujM/+PXr9Cky6Ed+W3JT24="
   }
 }
-	  //var vcDispo = browser.storage.local.get(storageToSend);
+	  var vcDispo = browser.storage.local.get('storageToSend');
     var tab = [jsonStruc, jsonStruc2];
     for (var i = 0; i < tab.length; i++) {
         document.write("<div> <input class='vcAvailable' type='checkbox' id='" + i +"' name='" + tab[i] + "'> <label for='" + tab[i] + "'> " + tab[i].type[1] + " ----> from " + tab[i].issuer.split('.')[0].substring(8) + "</label> </div>");
     }
-      
-  </script>
-
-	<button class="styled" type="button" id="makeVP">
-       Send credentials
-  </button>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <script type="text/javascript">
-	function initElement()
-	{
-	  var p = document.getElementById("makeVP");
-	  // NOTE: showAlert(); ou showAlert(param); NE fonctionne PAS ici.
-	  // Il faut fournir une valeur de type function (nom de fonction déclaré ailleurs ou declaration en ligne de fonction).
-	  p.onclick = showAlert;
-	};
-
-	function showAlert()
-	{
-		var checkboxes = document.getElementsByClassName('vcAvailable');
-		var vals = [];
-		for (var i=0, n=checkboxes.length;i<n;i++) 
-		{
-		    if (checkboxes[i].checked) 
-		    {
-		        vals.push(checkboxes[i].id);
-		    }
-		}
-		document.write("<div> " + vals  + " </div>");
-	}
-
-	initElement();
-  </script>
-
-  </body>
-</html>
