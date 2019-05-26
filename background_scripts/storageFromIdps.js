@@ -178,11 +178,11 @@ function getRespFromIDP(){
         	structJSONfromURL = xmlHttp.response;
         	console.log(structJSONfromURL);
         	if (checkStrucValidity(structJSONfromURL,"payload")) {
-				const getHistoryFromLocal = browser.storage.local.get(structArrayHistory);
+				const getHistoryFromLocal = browser.storage.local.get("structArrayHistory");
 				getHistoryFromLocal.then(function(settings) {
 					addStorageHistory(settings);
 				});
-				const getSendFromLocal = browser.storage.local.get(storageToSend);
+				const getSendFromLocal = browser.storage.local.get("storageToSend");
 				getSendFromLocal.then(function(settings) {
 					addStorageToSend(settings);
 				});

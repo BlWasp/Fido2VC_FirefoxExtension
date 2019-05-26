@@ -79,7 +79,7 @@ function onError(e) {
 	Win logger
 */
 function onGot(item) {
-	console.log(JSON.stringify(item));
+	console.log(item);
 }
 
 /*
@@ -244,7 +244,7 @@ function getResp(request){
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
             console.log(xmlHttp.response);
-            const getSpFromLocal = browser.storage.local.get(spStorage);
+            const getSpFromLocal = browser.storage.local.get("spStorage");
             getSpFromLocal.then(function(settings) {
 				storageFromSp(settings,xmlHttp.response,xmlHttp.response['issuer']);
             });
@@ -261,14 +261,20 @@ function getResp(request){
 	xmlHttp.send(null);
 }
 
+// const getSpFromLocal = browser.storage.local.get("spStorage");
+// getSpFromLocal.then(function(settings) {
+// 	storageFromSp(settings,policyTest,"test");
+// });
+// const testEx = browser.storage.local.get("spStorage");
+// testEx.then(onGot, onError);
 
 /*
 	Main part
 */
- browser.webRequest.onBeforeRequest.addListener(
- 	getResp,
- 	{urls: ["https://example.com/policy"]}
- );
+// browser.webRequest.onBeforeRequest.addListener(
+// 	getResp,
+// 	{urls: ["https://example.com/policy"]}
+// );
 /*
 	End of main part
 */
