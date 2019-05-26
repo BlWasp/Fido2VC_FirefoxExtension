@@ -1,7 +1,7 @@
 function initElement()
 {
 	var p = document.getElementById("makeVP");
-	p.onclick = showAlert;
+	p.onclick = getVCsChecked;
 };
 
 function getVCsChecked()

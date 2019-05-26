@@ -1,5 +1,7 @@
 browser.runtime.onMessage.addListener(notify);
 
 function notify(message) {
- 	browser.tabs.create({url: "/TabVCs/exemple.html"});
+	if(message.buttonVP != null){
+		browser.tabs.create({url: "/TabVCs/exemple.html"});
+	}
 }
