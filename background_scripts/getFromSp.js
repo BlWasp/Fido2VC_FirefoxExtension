@@ -224,7 +224,6 @@ function extractType(policyStruct) {
 */
 var spStorage = [];
 function storageFromSp(settings,struct) {
-	browser.storage.local.remove("spStorage");
 	if (!settings.spStorage) {
 		spStorage.push(struct);
 		browser.storage.local.set({spStorage});
@@ -242,10 +241,13 @@ function getResp(request){
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
             // console.log(xmlHttp.response);
+            browser.storage.local.remove("spStorage");
             const getSpFromLocal = browser.storage.local.get("spStorage");
             getSpFromLocal.then(function(settings) {
 				storageFromSp(settings,xmlHttp.response);
             });
+            const test = browser.storage.local.get("spStorage");
+            test.then(onGot, onError);
             // extractType(xmlHttp.response['authz_policy']);
 
             browser.webRequest.onBeforeRequest.addListener(
