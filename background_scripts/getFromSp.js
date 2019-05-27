@@ -223,16 +223,13 @@ function extractType(policyStruct) {
 	Storage
 */
 var spStorage = [];
-function storageFromSp(settings,struct,issuer) {
-	let spObject = {};
+function storageFromSp(settings,struct) {
 	if (!settings.spStorage) {
-		spObject[issuer] = struct;
-		spStorage.push(spObject);
+		spStorage.push(struct);
 		browser.storage.local.set({spStorage});
 	} else {
 		spStorage = settings.spStorage;
-		spObject[issuer] = struct;
-		spStorage.push(spObject);
+		spStorage.push(struct);
 		browser.storage.local.set({spStorage});
 	}
 }
@@ -246,9 +243,9 @@ function getResp(request){
             console.log(xmlHttp.response);
             const getSpFromLocal = browser.storage.local.get("spStorage");
             getSpFromLocal.then(function(settings) {
-				storageFromSp(settings,xmlHttp.response,xmlHttp.response['issuer']);
+				storageFromSp(settings,xmlHttp.response);
             });
-            extractType(xmlHttp.response['authz_policy']);
+            // extractType(xmlHttp.response['authz_policy']);
 
             browser.webRequest.onBeforeRequest.addListener(
  				getResp,
@@ -271,10 +268,10 @@ function getResp(request){
 /*
 	Main part
 */
-// browser.webRequest.onBeforeRequest.addListener(
-// 	getResp,
-// 	{urls: ["https://example.com/policy"]}
-// );
+browser.webRequest.onBeforeRequest.addListener(
+	getResp,
+	{urls: ["https://example.com/policy"]}
+);
 /*
 	End of main part
 */
