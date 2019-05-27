@@ -169,7 +169,6 @@ var issuer;
 */
 var structJSONfromURL;
 function getRespFromIDP(){
-	console.log("jkfjkfhkjfsjkfdskjhfsjkfjkjfkskjfds");
 	browser.webRequest.onBeforeRequest.removeListener(getRespFromIDP);
 	var xmlHttp = new XMLHttpRequest();
 	let reqURL = "https://example.com:5000/verifiable_credentials";
@@ -498,6 +497,7 @@ function parseVC(jsonObject){
 
 	if(!vcIsValid){
 		console.log("Error. VC not valid.\n");
+		vcIsValid = true;
 		return false;
 	}
 
