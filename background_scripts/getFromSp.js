@@ -224,14 +224,9 @@ function extractType(policyStruct) {
 */
 var spStorage = [];
 function storageFromSp(settings,struct) {
-	if (!settings.spStorage) {
+		spStorage = [];
 		spStorage.push(struct);
 		browser.storage.local.set({spStorage});
-	} else {
-		spStorage = settings.spStorage;
-		spStorage.push(struct);
-		browser.storage.local.set({spStorage});
-	}
 }
 
 function getResp(request){
@@ -240,20 +235,19 @@ function getResp(request){
 	var respURL = request.url;
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-            // console.log(xmlHttp.response);
+            console.log(xmlHttp.response);
             browser.storage.local.remove("spStorage");
             const getSpFromLocal = browser.storage.local.get("spStorage");
-            getSpFromLocal.then(function(settings) {
-				storageFromSp(settings,xmlHttp.response);
-            });
-            const test = browser.storage.local.get("spStorage");
-            test.then(onGot, onError);
+			storageFromSp(getSpFromLocal,xmlHttp.response);
+     
             // extractType(xmlHttp.response['authz_policy']);
-
             browser.webRequest.onBeforeRequest.addListener(
  				getResp,
  				{urls: ["https://example.com/policy"]}
  			);
+
+ 			const testEx = browser.storage.local.get("spStorage");
+		    testEx.then(onGot, onError);
         }
     }
 	xmlHttp.open("GET", respURL, true); // true for asynchronous 
