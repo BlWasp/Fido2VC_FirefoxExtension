@@ -224,6 +224,7 @@ function extractType(policyStruct) {
 */
 var spStorage = [];
 function storageFromSp(settings,struct) {
+	browser.storage.local.remove("spStorage");
 	if (!settings.spStorage) {
 		spStorage.push(struct);
 		browser.storage.local.set({spStorage});
@@ -240,7 +241,7 @@ function getResp(request){
 	var respURL = request.url;
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-            console.log(xmlHttp.response);
+            // console.log(xmlHttp.response);
             const getSpFromLocal = browser.storage.local.get("spStorage");
             getSpFromLocal.then(function(settings) {
 				storageFromSp(settings,xmlHttp.response);
