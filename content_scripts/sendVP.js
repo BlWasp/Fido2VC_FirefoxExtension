@@ -61,15 +61,25 @@ function getStructEncoding(struct) {
   return enc.encode(struct); 
 }
 
+function hexString(buffer) {
+  const byteArray = new Uint8Array(buffer);
+
+  const hexCodes = [...byteArray].map(value => {
+    const hexCode = value.toString(16);
+    const paddedHexCode = hexCode.padStart(2, '0');
+    return paddedHexCode;
+  });
+
+  return hexCodes.join('');
+}
+
 // IL MANQUE LE RETOUR !!!!!!!!!!!!!!
 /*
   Make a VP from VCs
   Hash the VP and sign it
   Return an array with the Base64 VP and the hash signature
 */
-function makeVP(...VC) {
-
-  var header = {"alg":"RS256","type":"JWT","kid":"did:example:ebfeb1f712ebc6f1c276e12ec21#keys-1"};
+function makeVP(VC) {
   var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
     "jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
     "aud": "did:example:4a57546973436f6f6c4a4a57573",
@@ -85,28 +95,36 @@ function makeVP(...VC) {
       "verifiableCredential": []
     }
   };
-  for (var loopArguments of arguments) {
+  for (var loopArguments of VC) {
     payload['vp']['verifiableCredential'].push(loopArguments);
   }
-  payload["sub"] = browser.storage.local.get(spStorage[0]['user_token']);
   console.log(payload);
   
-  let b64Header = utf8_to_b64(JSON.stringify(header));
   let b64Payload = utf8_to_b64(JSON.stringify(payload));
-  let b64VP = b64Header+"."+b64Payload;
-  console.log(b64VP);
-  
-  window.crypto.subtle.digest('SHA-256', getStructEncoding(b64VP)).then(function(hashVP) {
-    var signatureOptions = {challenge: new Uint8Array([4,101,15]),
-                            timeout: 60000,
-                            allowCredentials: [{ type: "public-key", id: new Uint8Array([183, 148, 245]) }]
-                            };
-    navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
-      console.log("Signature done !");
-    }).catch(function (err) {
-          console.log("Error navigator.credentials.get, wrong credentialID...");
-          toSend = 4;
-    });
+
+  window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(function(hashVP) {
+    let proof = {};
+    proof['type'] = "externalHash";
+    proof['created'] = new Date();
+    proof['hash'] = hexString(hashVP);
+    payload['proof'] = proof;
+    // console.log(JSON.stringify(payload));
+    b64Payload = utf8_to_b64(JSON.stringify(payload));
+
+    const credentialID = browser.storage.local.get("spStorage");
+    credentialID.then(function() {
+      var signatureOptions = {challenge: _base64ToArrayBuffer(b64Payload),
+                              timeout: 60000,
+                              allowCredentials: [{ type: "public-key", id: credentialID['credential_id'] }]
+                              };
+      navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
+        console.log("Signature done !");
+        return [b64Payload,credentials];
+      }).catch(function (err) {
+            console.log("Error navigator.credentials.get, wrong credentialID...");
+            toSend = 4;
+      });
+    })
   });
 }
 
@@ -137,20 +155,9 @@ console.log(Notification.permission);
 if (window.Notification && Notification.permission === "granted") {
   var notif = new Notification("Click here to sign and send the VP");
   notif.onclick = function(event) {
-    sendViaXHR();
+    makeVP([jsonStruc,jsonStruc2]);
   }
 }
-
-// browser.notifications.create("signature", {
-// 	"type": "basic",
-// 	"iconUrl": "/icons/vc-48.png",
-// 	"title": "Signature",
-// 	"message": "Click here to sign and send the VP"
-// });
-
-// browser.notifications.onClicked.addListener(() => {
-// 	makeVP(jsonStruc,jsonStruc2);
-// });
 
 
  /*
@@ -171,15 +178,67 @@ function sendViaXHR() {
 }
 
 
-// browser.contextMenus.create({
-// 	id: "sign",
-// 	title: "Sign this VP"
-// });
+var publicKey = {
+  // The challenge is produced by the server; see the Security Considerations
+  challenge: new Uint8Array([21,31,105]),
 
-// browser.contextMenus.onClicked.addListener(function(info, tab) {
-// 	if (info.menuItemId == "sign") {
-// 		browser.tabs.executeScript({
-// 			file: "/background_scripts/sendVP.js"
-// 		});
-// 	}
-// });
+  // Relying Party:
+  rp: {
+    name: "ACME Corporation"
+  },
+
+  // User:
+  user: {
+    id: Uint8Array.from(window.atob("MIIBkzCCATigAwIBAjCCAZMwggE4oAMCAQIwggGTMII="), c=>c.charCodeAt(0)),
+    name: "alex.p.mueller@example.com",
+    displayName: "Alex P. Müller",
+    icon: "https://pics.example.com/00/p/aBjjjpqPb.png"
+  },
+
+  // This Relying Party will accept either an ES256 or RS256 credential, but
+  // prefers an ES256 credential.
+  pubKeyCredParams: [
+    {
+      type: "public-key",
+      alg: -7 // "ES256" as registered in the IANA COSE Algorithms registry
+    },
+    {
+      type: "public-key",
+      alg: -257 // Value registered by this specification for "RS256"
+    }
+  ],
+
+  timeout: 60000,  // 1 minute
+  excludeCredentials: [], // No exclude list of PKCredDescriptors
+  extensions: {"loc": true}  // Include location information
+                                           // in attestation
+};
+
+
+function test() {
+  // Note: The following call will cause the authenticator to display UI.
+  navigator.credentials.create({publicKey})
+    .then(function (newCredentialInfo) {
+
+      var options = {
+        // The challenge is produced by the server; see the Security Considerations
+        challenge: new Uint8Array([4,101,15]),
+        timeout: 60000,  // 1 minute
+        allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(newCredentialInfo['id']) }]
+      };
+
+      navigator.credentials.get({ "publicKey": options })
+          .then(function (assertion) {
+            console.log("navigator.credentials.get OK");
+            console.log("Signature : " + String.fromCharCode.apply(null, new Uint8Array(assertion.response['signature'])));
+          // Send assertion to server for verification
+      }).catch(function (err) {
+          console.log("Error navigator.credentials.get")
+          // No acceptable credential or user refused consent. Handle appropriately.
+      });
+      // Send new credential info to server for verification and registration.
+    }).catch(function (err) {
+      console.log(err);
+      // No acceptable authenticator or user refused consent. Handle appropriately.
+    });
+}
