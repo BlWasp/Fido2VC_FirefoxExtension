@@ -17,16 +17,16 @@
     "background_scripts/openVcTab.js"]
   },
 
-  "content_scripts": [
-    {
-      "matches": ["https://example.com/accueil"],
-      "js": ["content_scripts/fillTokenID.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content_scripts/sendVP.js"]
-    }
-  ],
+  // "content_scripts": [
+  //   {
+  //     "matches": ["https://example.com/accueil"],
+  //     "js": ["content_scripts/fillTokenID.js"]
+  //   },
+  //   {
+  //     "matches": ["<all_urls>"],
+  //     "js": ["content_scripts/sendVP.js"]
+  //   }
+  // ],
 
   "browser_action": {
     "default_icon": "icons/vc-32.png",

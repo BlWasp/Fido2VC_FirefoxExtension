@@ -104,8 +104,9 @@ var jwt = {
 	When a new JSON-LD or payload structure is received this function check the validity with the proof
 	Also check de expiration validity
 */
-function checkStrucValidity(structToAnalyse,type) {
-	if (type == "payload") {  // If it's a payload structure
+async function checkStrucValidity(structToAnalyse,type) {
+	if (type == "JWT") {  // If it's a payload structure
+		storageToSend.splice(0,storageToSend.length);
 		for (var loopListVC of structToAnalyse['vcList']) {
 			/* Divide the Base64 structure according to the '.' and take the header, the payload and the proof
 			Concates the header and the payload with a "."
@@ -128,7 +129,7 @@ function checkStrucValidity(structToAnalyse,type) {
 			const pemFooter = "-----END PUBLIC KEY-----";
 			const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
 			var pkey = pemContents.replace("\\n","");
-			window.crypto.subtle.importKey(
+			await window.crypto.subtle.importKey(
 				"spki",
 				_base64ToArrayBuffer(pkey),
 				{
@@ -137,31 +138,45 @@ function checkStrucValidity(structToAnalyse,type) {
 				},
 				    true,
 				    ["verify"]
-				).then(function(publicKey) {
-				    window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,_base64ToArrayBuffer(proof),str2ab(data)).then(function(result) {
-						if (!result) {
-							console.log("Errrooooor crypto.....");
-							utfArray.splice(0,utfArray.length);
-							storageToSend.splice(0,storageToSend.length);
-							return result;
-						}
-						console.log("Good signature au bon endroit!");
-						issuer = payloadUTF['vc']['issuer'];
-						storageToSend.push([payloadUTF['vc'],loopListVC]);
-						console.log("Le storage to Send : " + storageToSend);
-						utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(payloadUTF));
-					}).catch(function(err) {
-						console.log(err);
-					});
+			).then(async function(publicKey) {
+			    await window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,_base64ToArrayBuffer(proof),str2ab(data)).then(function(result) {
+					if (!result) {
+						console.log("Errrooooor crypto.....");
+						utfArray.splice(0,utfArray.length);
+						storageToSend.splice(0,storageToSend.length);
+						// return result;
+					}
+					console.log("Good signature au bon endroit!");
+					issuer = payloadUTF['vc']['issuer'];
+					console.log(payloadUTF);
+					storageToSend.push([payloadUTF['vc'],loopListVC]);
+					console.log("Le storage to Send : " + storageToSend);
+					utfArray.push(JSON.stringify(headerUTF)+"."+JSON.stringify(payloadUTF));
 				}).catch(function(err) {
-				    console.error(err);
+					console.log(err);
 				});
+			}).catch(function(err) {
+			    console.error(err);
+			});
 		}
 		return true;
 	} else{ // If it's a JSON-LD structure
 		null;
 	}
 }
+
+checkStrucValidity(jwt,"JWT").then(function() {
+	const getSendFromLocal = browser.storage.local.get("storageToSend");
+	getSendFromLocal.then(function(settings) {
+		addStorageToSend(settings);
+		const test = browser.storage.local.get("storageToSend");
+		test.then(onGot, onError);
+	});
+});
+// const getHistoryFromLocal = browser.storage.local.get("structArrayHistory");
+// getHistoryFromLocal.then(function(settings) {
+// 	addStorageHistory(settings);
+// });
 
 
 /*
@@ -277,6 +292,7 @@ function JWTtoJSLD(payload){
 	vc['issuanceDate'] = new Date(payload['iat']* 1000);
 	return vc;
 }
+
 
 /**
  * Check the correct syntax of a VC and store attributes (Where????)
