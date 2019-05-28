@@ -79,7 +79,7 @@ function hexString(buffer) {
   Hash the VP and sign it
   Return an array with the Base64 VP and the hash signature
 */
-function makeVP(VC) {
+function makeVP() {
   var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
     "jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
     "aud": "did:example:4a57546973436f6f6c4a4a57573",
@@ -95,9 +95,12 @@ function makeVP(VC) {
       "verifiableCredential": []
     }
   };
-  for (var loopArguments of VC) {
-    payload['vp']['verifiableCredential'].push(loopArguments);
-  }
+  const getListToSend = browser.storage.local.get('listVCs');
+  getListToSend.then(function(vc) {
+    for (var loopVC of vc['listVCs']) {
+      payload['vp']['verifiableCredential'].push(loopVC);
+    }
+  });
   console.log(payload);
   
   let b64Payload = utf8_to_b64(JSON.stringify(payload));
@@ -153,5 +156,5 @@ function sendViaXHR() {
       console.log("Request send");
     }
   }
-  xhrVP.send(makeVP(jsonStruc,jsonStruc2));
+  xhrVP.send(makeVP());
 }

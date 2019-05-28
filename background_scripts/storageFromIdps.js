@@ -14,7 +14,7 @@ function onError(e) {
 	Win logger
 */
 function onGot(item) {
-	console.log(JSON.stringify(item));
+	console.log(item);
 }
 
 /*
@@ -171,7 +171,9 @@ async function checkStrucValidity(structToAnalyse,type) {
 // 	getSendFromLocal.then(function(settings) {
 // 		addStorageToSend(settings);
 // 		const test = browser.storage.local.get("storageToSend");
-// 		test.then(onGot, onError);
+// 		test.then(function(vals) {
+// 			console.log(vals['storageToSend'][0][1]);
+// 		});
 // 	});
 // });
 

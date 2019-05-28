@@ -78,9 +78,9 @@ function onError(e) {
 /*
 	Win logger
 */
-function onGot(item) {
-	console.log(item);
-}
+// function onGot(item) {
+// 	console.log(item);
+// }
 
 /*
 	The Service Provider give a JSON structure with the Policy in DNF or CNF
