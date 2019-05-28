@@ -3,7 +3,6 @@
 	University of Kent, UK
 */
 
-
 browser.runtime.onMessage.addListener(sign);
 
 function sign(request) {
