@@ -14,19 +14,20 @@
     "scripts": 
     ["background_scripts/storageFromIdps.js",
     "background_scripts/getFromSp.js",
-    "background_scripts/openVcTab.js"]
+    "background_scripts/openVcTab.js",
+    "background_scripts/injectScript.js"]
   },
 
-  // "content_scripts": [
-  //   {
-  //     "matches": ["https://example.com/accueil"],
-  //     "js": ["content_scripts/fillTokenID.js"]
-  //   },
-  //   {
-  //     "matches": ["<all_urls>"],
-  //     "js": ["content_scripts/sendVP.js"]
-  //   }
-  // ],
+  "content_scripts": [
+    {
+      "matches": ["https://example.com/accueil"],
+      "js": ["content_scripts/fillTokenID.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_scripts/callSend.js"]
+    }
+  ],
 
   "browser_action": {
     "default_icon": "icons/vc-32.png",

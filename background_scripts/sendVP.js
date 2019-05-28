@@ -139,27 +139,6 @@ function _base64ToArrayBuffer(base64) {
 }
 
 
-/*
-  All the section bellow is about notification
-*/
-window.addEventListener('load', function() {
-  Notification.requestPermission(function (status) {
-    if (Notification.permission !== status) {
-      Notification.permission = status;
-    }
-  });
-});
-
-console.log(Notification.permission);
-
-if (window.Notification && Notification.permission === "granted") {
-  var notif = new Notification("Click here to sign and send the VP");
-  notif.onclick = function(event) {
-    makeVP([jsonStruc,jsonStruc2]);
-  }
-}
-
-
  /*
   Send the array from makeVP to the SP server
  */
@@ -175,70 +154,4 @@ function sendViaXHR() {
     }
   }
   xhrVP.send(makeVP(jsonStruc,jsonStruc2));
-}
-
-
-var publicKey = {
-  // The challenge is produced by the server; see the Security Considerations
-  challenge: new Uint8Array([21,31,105]),
-
-  // Relying Party:
-  rp: {
-    name: "ACME Corporation"
-  },
-
-  // User:
-  user: {
-    id: Uint8Array.from(window.atob("MIIBkzCCATigAwIBAjCCAZMwggE4oAMCAQIwggGTMII="), c=>c.charCodeAt(0)),
-    name: "alex.p.mueller@example.com",
-    displayName: "Alex P. Müller",
-    icon: "https://pics.example.com/00/p/aBjjjpqPb.png"
-  },
-
-  // This Relying Party will accept either an ES256 or RS256 credential, but
-  // prefers an ES256 credential.
-  pubKeyCredParams: [
-    {
-      type: "public-key",
-      alg: -7 // "ES256" as registered in the IANA COSE Algorithms registry
-    },
-    {
-      type: "public-key",
-      alg: -257 // Value registered by this specification for "RS256"
-    }
-  ],
-
-  timeout: 60000,  // 1 minute
-  excludeCredentials: [], // No exclude list of PKCredDescriptors
-  extensions: {"loc": true}  // Include location information
-                                           // in attestation
-};
-
-
-function test() {
-  // Note: The following call will cause the authenticator to display UI.
-  navigator.credentials.create({publicKey})
-    .then(function (newCredentialInfo) {
-
-      var options = {
-        // The challenge is produced by the server; see the Security Considerations
-        challenge: new Uint8Array([4,101,15]),
-        timeout: 60000,  // 1 minute
-        allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(newCredentialInfo['id']) }]
-      };
-
-      navigator.credentials.get({ "publicKey": options })
-          .then(function (assertion) {
-            console.log("navigator.credentials.get OK");
-            console.log("Signature : " + String.fromCharCode.apply(null, new Uint8Array(assertion.response['signature'])));
-          // Send assertion to server for verification
-      }).catch(function (err) {
-          console.log("Error navigator.credentials.get")
-          // No acceptable credential or user refused consent. Handle appropriately.
-      });
-      // Send new credential info to server for verification and registration.
-    }).catch(function (err) {
-      console.log(err);
-      // No acceptable authenticator or user refused consent. Handle appropriately.
-    });
 }
