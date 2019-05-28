@@ -105,6 +105,7 @@ var jwt = {
 	Also check de expiration validity
 */
 async function checkStrucValidity(structToAnalyse,type) {
+	browser.storage.local.remove('storageToSend');
 	if (type == "JWT") {  // If it's a payload structure
 		storageToSend.splice(0,storageToSend.length);
 		for (var loopListVC of structToAnalyse['vcList']) {
@@ -144,7 +145,6 @@ async function checkStrucValidity(structToAnalyse,type) {
 						console.log("Errrooooor crypto.....");
 						utfArray.splice(0,utfArray.length);
 						storageToSend.splice(0,storageToSend.length);
-						// return result;
 					}
 					console.log("Good signature au bon endroit!");
 					issuer = payloadUTF['vc']['issuer'];

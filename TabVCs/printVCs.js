@@ -1,4 +1,4 @@
-  	var jsonStruc = {
+  /*	var jsonStruc = {
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
     "https://www.w3.org/2018/credentials/examples/v1"
@@ -50,3 +50,23 @@ var jsonStruc2 = {
     for (var i = 0; i < tab.length; i++) {
         document.write("<div> <input class='vcAvailable' type='checkbox' id='" + i +"' name='" + tab[i] + "'> <label for='" + tab[i] + "'> " + tab[i].type[1] + " ----> from " + tab[i].issuer.split('.')[0].substring(8) + "</label> </div>");
     }
+*/
+
+
+const struc = browser.storage.local.get("storageToSend");
+struc.then(function(item){
+  var tabVCs = item.storageToSend;
+  for (var i = 0; i < tabVCs.length; i++) {
+    let credential = Object.keys(tabVCs[i][0].credentialSubject)[0];
+    let issuer = tabVCs[i][0]['issuer'];
+    document.write("<div> <input class='vcAvailable' type='checkbox' id='" + i +"' name='" + "gege" + "'> <label for='" + "gege" + "'> " + credential + " ----> from " + issuer + "</label> </div>");
+    console.log(i + " : " + credential + " from " + issuer);
+  }
+});
+
+
+
+
+
+
+
