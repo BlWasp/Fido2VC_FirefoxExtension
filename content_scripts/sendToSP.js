@@ -1,8 +1,9 @@
+var btn = document.getElementById("sendVP");
+
 function openRequestedPopup() {
-	browser.runtime.sendMessage({"buttonVP": "Ouverture de la page montrant les VCs en stock"});
+	browser.runtime.sendMessage({"buttonVP": btn.value});
 }
 
-var btn = document.getElementById("home");
 btn.onclick = function() {
   	openRequestedPopup();
 }
