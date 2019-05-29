@@ -102,29 +102,28 @@ function makeVP() {
     }
     console.log(payload);
   
-    let b64Payload = utf8_to_b64(JSON.stringify(payload));
+    var b64Payload = utf8_to_b64(JSON.stringify(payload));
 
     window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(function(hashVP) {
-      let proof = {};
+      var proof = {};
       proof['type'] = "externalHash";
       proof['created'] = new Date();
-      proof['hash'] = hexString(hashVP);
-      payload['proof'] = proof;
-      // console.log(JSON.stringify(payload));
-      b64Payload = utf8_to_b64(JSON.stringify(payload));
 
       const credentialID = browser.storage.local.get("spStorage");
       credentialID.then(function(cred) {
-        var signatureOptions = {challenge: _base64ToArrayBuffer(b64Payload),
+      	console.log(cred['spStorage']['credential_id']);
+        var signatureOptions = {challenge: hashVP,
                                 timeout: 60000,
                                 allowCredentials: [{ type: "public-key", id: cred['spStorage']['credential_id'] }]
                                 };
-        navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
+        navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
+          proof['hash'] = credentials.response['signature'];
+          payload['proof'] = proof;
+          b64Payload = utf8_to_b64(JSON.stringify(payload));
           console.log("Signature done !");
-          return [b64Payload,credentials];
+          return b64Payload;
         }).catch(function (err) {
               console.log("Error navigator.credentials.get, wrong credentialID...");
-              toSend = 4;
         });
       })
     });
