@@ -100,34 +100,34 @@ function makeVP() {
     for (var loopVC of vc['listVCs']) {
       payload['vp']['verifiableCredential'].push(loopVC);
     }
-  });
-  console.log(payload);
+    console.log(payload);
   
-  let b64Payload = utf8_to_b64(JSON.stringify(payload));
+    let b64Payload = utf8_to_b64(JSON.stringify(payload));
 
-  window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(function(hashVP) {
-    let proof = {};
-    proof['type'] = "externalHash";
-    proof['created'] = new Date();
-    proof['hash'] = hexString(hashVP);
-    payload['proof'] = proof;
-    // console.log(JSON.stringify(payload));
-    b64Payload = utf8_to_b64(JSON.stringify(payload));
+    window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(function(hashVP) {
+      let proof = {};
+      proof['type'] = "externalHash";
+      proof['created'] = new Date();
+      proof['hash'] = hexString(hashVP);
+      payload['proof'] = proof;
+      // console.log(JSON.stringify(payload));
+      b64Payload = utf8_to_b64(JSON.stringify(payload));
 
-    const credentialID = browser.storage.local.get("spStorage");
-    credentialID.then(function() {
-      var signatureOptions = {challenge: _base64ToArrayBuffer(b64Payload),
-                              timeout: 60000,
-                              allowCredentials: [{ type: "public-key", id: credentialID['credential_id'] }]
-                              };
-      navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
-        console.log("Signature done !");
-        return [b64Payload,credentials];
-      }).catch(function (err) {
-            console.log("Error navigator.credentials.get, wrong credentialID...");
-            toSend = 4;
-      });
-    })
+      const credentialID = browser.storage.local.get("spStorage");
+      credentialID.then(function(cred) {
+        var signatureOptions = {challenge: _base64ToArrayBuffer(b64Payload),
+                                timeout: 60000,
+                                allowCredentials: [{ type: "public-key", id: cred['spStorage']['credential_id'] }]
+                                };
+        navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) {
+          console.log("Signature done !");
+          return [b64Payload,credentials];
+        }).catch(function (err) {
+              console.log("Error navigator.credentials.get, wrong credentialID...");
+              toSend = 4;
+        });
+      })
+    });
   });
 }
 

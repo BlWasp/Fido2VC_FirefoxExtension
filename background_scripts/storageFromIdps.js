@@ -35,6 +35,7 @@ var vcIsValid = true;
 */
 var structJSONfromURL;
 function getRespFromIDP(){
+	browser.storage.local.remove('storageToSend');
 	browser.webRequest.onBeforeRequest.removeListener(getRespFromIDP);
 	var xmlHttp = new XMLHttpRequest();
 	let reqURL = "https://example.com:5000/verifiable_credentials";
@@ -105,7 +106,6 @@ var jwt = {
 	Also check de expiration validity
 */
 async function checkStrucValidity(structToAnalyse,type) {
-	browser.storage.local.remove('storageToSend');
 	if (type == "JWT") {  // If it's a payload structure
 		storageToSend.splice(0,storageToSend.length);
 		utfArray.splice(0,utfArray.length);
