@@ -3,13 +3,13 @@
 	University of Kent, UK
 */
 
-	window.addEventListener('load', function() {
-		Notification.requestPermission(function (status) {
-			if (Notification.permission !== status) {
-				Notification.permission = status;
-			}
-		});
+window.addEventListener('load', function() {
+	Notification.requestPermission(function (status) {
+		if (Notification.permission !== status) {
+			Notification.permission = status;
+		}
 	});
+});
 
 
 var btn = document.getElementById("makeVP"); // id = makeVP

@@ -65,7 +65,7 @@ function makeVP() {
       	console.log(cred.spStorage[0].credential_id);
         var signatureOptions = {challenge: hashVP,
                                 timeout: 60000,
-                                allowCredentials: [{ type: "public-key", id: cred.spStorage[0].credential_id }]
+                                allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(cred.spStorage[0].credential_id) }]
                                 };
         navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
           proof['hash'] = credentials.response['signature'];
