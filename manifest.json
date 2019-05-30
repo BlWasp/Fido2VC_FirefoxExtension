@@ -26,10 +26,6 @@
     {
       "matches": ["https://example.com/accueil"],
       "js": ["content_scripts/fillTokenID.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content_scripts/callSend.js"]
     }
   ],
 

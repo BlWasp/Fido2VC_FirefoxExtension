@@ -2,7 +2,6 @@ browser.runtime.onMessage.addListener(notify);
 
 function notify(message) {
 	if(message.buttonVP != null){
-		sendViaXHR();
 		const struc = browser.storage.local.get("spStorage");
 		struc.then(function(item){
 			var spStorage = item;

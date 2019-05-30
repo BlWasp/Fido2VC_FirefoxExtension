@@ -43,7 +43,7 @@ function getRespFromIDP(){
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
         	structJSONfromURL = xmlHttp.response;
         	console.log(structJSONfromURL);
-        	if (checkStrucValidity(structJSONfromURL,"payload")) {
+        	if (checkStrucValidity(structJSONfromURL,"JWT")) {
 				const getHistoryFromLocal = browser.storage.local.get("structArrayHistory");
 				getHistoryFromLocal.then(function(settings) {
 					addStorageHistory(settings);

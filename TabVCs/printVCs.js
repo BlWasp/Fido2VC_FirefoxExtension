@@ -1,6 +1,7 @@
 const struc = browser.storage.local.get("storageToSend");
 struc.then(function(item){
   var tabVCs = item.storageToSend;
+  console.log(tabVCs);
   for (var i = 0; i < tabVCs.length; i++) {
     var credential = Object.keys(tabVCs[i][0].credentialSubject)[0];
     var issuer = tabVCs[i][0]['issuer'];

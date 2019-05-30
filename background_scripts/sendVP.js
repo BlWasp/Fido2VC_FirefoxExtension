@@ -2,54 +2,6 @@
 	Copyright: Copyright (c) 2019 University of Toulouse, France and
 	University of Kent, UK
 */
-var jsonStruc = {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://www.w3.org/2018/credentials/examples/v1"
-  ],
-  "id": "http://example.gov/credentials/3732",
-  "type": ["VerifiableCredential", "UniversityDegreeCredential"],
-  "issuer": "https://example.edu",
-  "issuanceDate": "2010-01-01T19:73:24Z",
-  "credentialSubject": {
-    "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-    "degree": {
-      "type": "BachelorDegree",
-      "name": "<span lang='fr-CA'>Baccalauréat en musiques numériques</span>"
-    }
-  },
-  "proof": {
-    "type": "RsaSignature2018",
-    "created": "2018-06-18T21:19:10Z",
-    "verificationMethod": "https://example.com/jdoe/keys/1",
-    "signatureValue": "BavEll0/I1zpYw8XNi1bgVg/sCneO4Jugez8RwDg/+MCRVpjOboDoe4SxxKjkCOvKiCHGDvc4krqi6Z1n0UfqzxGfmatCuFibcC1wpsPRdW+gGsutPTLzvueMWmFhwYmfIFpbBu95t501+rSLHIEuujM/+PXr9Cky6Ed+W3JT24="
-  }
-}
-
-var jsonStruc2 = {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://www.w3.org/2018/credentials/examples/v1"
-  ],
-  "id": "http://example.gov/credentials/3732",
-  "type": ["VerifiableCredential", "UniversityDegreeCredential"],
-  "issuer": "https://example.edu",
-  "issuanceDate": "2010-01-01T19:73:24Z",
-  "credentialSubject": {
-    "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-    "degree": {
-      "type": "Other",
-      "name": "<span lang='fr-CA'>Baccalauréat en musiques numériques</span>"
-    }
-  },
-  "proof": {
-    "type": "RsaSignature2018",
-    "created": "2018-06-18T21:19:10Z",
-    "verificationMethod": "https://example.com/jdoe/keys/1",
-    "signatureValue": "BavEll0/I1zpYw8XNi1bgVg/sCneO4Jugez8RwDg/+MCRVpjOboDoe4SxxKjkCOvKiCHGDvc4krqi6Z1n0UfqzxGfmatCuFibcC1wpsPRdW+gGsutPTLzvueMWmFhwYmfIFpbBu95t501+rSLHIEuujM/+PXr9Cky6Ed+W3JT24="
-  }
-}
-
 
 function utf8_to_b64(str) {
   // console.log(str);
@@ -73,7 +25,6 @@ function hexString(buffer) {
   return hexCodes.join('');
 }
 
-// IL MANQUE LE RETOUR !!!!!!!!!!!!!!
 /*
   Make a VP from VCs
   Hash the VP and sign it
@@ -111,10 +62,10 @@ function makeVP() {
 
       const credentialID = browser.storage.local.get("spStorage");
       credentialID.then(function(cred) {
-      	console.log(cred['spStorage']['credential_id']);
+      	console.log(cred.spStorage[0].credential_id);
         var signatureOptions = {challenge: hashVP,
                                 timeout: 60000,
-                                allowCredentials: [{ type: "public-key", id: cred['spStorage']['credential_id'] }]
+                                allowCredentials: [{ type: "public-key", id: cred.spStorage[0].credential_id }]
                                 };
         navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
           proof['hash'] = credentials.response['signature'];
@@ -145,10 +96,13 @@ function _base64ToArrayBuffer(base64) {
   Send the array from makeVP to the SP server
  */
 function sendViaXHR() {
-  let url = document.location.href;
+  var url;
+  const struc = browser.storage.local.get("spStorage");
+  struc.then(function(item){
+      url = item.spStorage[0].urlToPOST;
+  });
   var xhrVP = new XMLHttpRequest();
   xhrVP.open("POST", url, true);
-  // xhrVP.setRequestHeader("json", );
 
   xhrVP.onreadystatechange = function() {
     if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
@@ -157,3 +111,5 @@ function sendViaXHR() {
   }
   xhrVP.send(makeVP());
 }
+
+sendViaXHR();

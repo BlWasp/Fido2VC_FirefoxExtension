@@ -3,9 +3,6 @@
 	University of Kent, UK
 */
 
-var button = document.getElementById('makeVP');
-
-button.onClick = function() {
 	window.addEventListener('load', function() {
 		Notification.requestPermission(function (status) {
 			if (Notification.permission !== status) {
@@ -14,6 +11,10 @@ button.onClick = function() {
 		});
 	});
 
+
+var btn = document.getElementById("makeVP"); // id = makeVP
+
+function openNotification() {
 	// console.log(Notification.permission);
 
 	if (window.Notification && Notification.permission === "granted") {
@@ -23,3 +24,11 @@ button.onClick = function() {
 		}
 	}
 }
+
+btn.onclick = function() {
+  	openNotification();
+}
+
+
+
+
