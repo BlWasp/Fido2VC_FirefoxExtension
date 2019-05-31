@@ -34,11 +34,12 @@ var vcIsValid = true;
 	Prepare a XHR request and send it to the server to take the whole JSON-LD or payload structure
 */
 var structJSONfromURL;
-function getRespFromIDP(){
-	browser.storage.local.remove('storageToSend');
+function getRespFromIDP(request){
+	//browser.storage.local.remove('storageToSend');
 	browser.webRequest.onBeforeRequest.removeListener(getRespFromIDP);
 	var xmlHttp = new XMLHttpRequest();
-	let reqURL = "https://example.com:5000/verifiable_credentials";
+	//let reqURL = "https://example.com:5000/verifiable_credentials";
+	let reqURL = request.url;
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
         	structJSONfromURL = xmlHttp.response;
@@ -56,7 +57,7 @@ function getRespFromIDP(){
 
             browser.webRequest.onBeforeRequest.addListener(
  				getRespFromIDP,
- 				{urls: ["https://example.com/verifiable_credentials"]}
+ 				{urls: ["https://*/verifiable_credentials"]}
  			);
         }
     }
@@ -270,7 +271,7 @@ function addStorageToSend(settings) {
 
 browser.webRequest.onBeforeRequest.addListener(
 	getRespFromIDP,
-	{urls: ["https://example.com/verifiable_credentials"]}
+	{urls: ["https://*/verifiable_credentials"]}
 );
 
 /*

@@ -30,6 +30,7 @@ function hexString(buffer) {
   Hash the VP and sign it
   Return an array with the Base64 VP and the hash signature
 */
+var toReturn;
 function makeVP() {
   var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
     "jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
@@ -51,7 +52,6 @@ function makeVP() {
     for (var loopVC of vc['listVCs']) {
       payload['vp']['verifiableCredential'].push(loopVC);
     }
-    console.log(payload);
   
     var b64Payload = utf8_to_b64(JSON.stringify(payload));
 
@@ -59,8 +59,12 @@ function makeVP() {
       var proof = {};
       proof['type'] = "externalHash";
       proof['created'] = new Date();
+      proof['hash'] = hexString(hashVP);
+      payload['proof'] = proof;
+      b64Payload = utf8_to_b64(JSON.stringify(payload));
+      sendViaXHR(b64Payload);
 
-      const credentialID = browser.storage.local.get("spStorage");
+      /*const credentialID = browser.storage.local.get("spStorage");
       credentialID.then(function(cred) {
         var credID = cred.spStorage[0].credential_id;
       	console.log(credID);
@@ -76,7 +80,7 @@ function makeVP() {
           console.log("Signature done !");
           return b64Payload;
         });
-      })
+      });*/
     });
   });
 }
@@ -95,21 +99,22 @@ function _base64ToArrayBuffer(base64) {
  /*
   Send the array from makeVP to the SP server
  */
-function sendViaXHR() {
-  var url;
+function sendViaXHR(data) {
+  var url; 
   const struc = browser.storage.local.get("spStorage");
   struc.then(function(item){
       url = item.spStorage[0].urlToPOST;
-  });
-  var xhrVP = new XMLHttpRequest();
-  xhrVP.open("POST", url, true);
+      var xhrVP = new XMLHttpRequest();
+      xhrVP.open("POST", url, true);
 
-  xhrVP.onreadystatechange = function() {
-    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-      console.log("Request send");
-    }
-  }
-  xhrVP.send(makeVP());
+      xhrVP.onreadystatechange = function() {
+          if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            console.log("VP sent with success !");
+            alert("VP sent with success !");
+          }
+      }
+      xhrVP.send(data);
+  });
 }
 
-sendViaXHR();
+makeVP();

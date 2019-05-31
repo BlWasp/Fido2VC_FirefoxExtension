@@ -31,6 +31,7 @@ function getVCsChecked()
 		document.write("<div> " + vals  + " </div>");
 		document.write("<div> " + listVCs  + " </div>");
 	});
+	window.close();
 }
 
 function storeList(vc) {

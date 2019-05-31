@@ -243,7 +243,7 @@ function getResp(request){
             // extractType(xmlHttp.response['authz_policy']);
             browser.webRequest.onBeforeRequest.addListener(
  				getResp,
- 				{urls: ["https://example.com/policy"]}
+ 				{urls: ["https://*/policy"]}
  			);
 
  			const testEx = browser.storage.local.get("spStorage");
@@ -267,7 +267,7 @@ function getResp(request){
 */
 browser.webRequest.onBeforeRequest.addListener(
 	getResp,
-	{urls: ["https://example.com/policy"]}
+	{urls: ["https://*/policy"]}
 );
 /*
 	End of main part
