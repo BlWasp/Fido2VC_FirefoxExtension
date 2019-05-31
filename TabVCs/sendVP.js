@@ -1,12 +1,14 @@
 function initElement()
 {
+	console.log("La c'est normal....");
 	var p = document.getElementById("makeVP");
-	p.onclick = getVCsChecked;
+	p.addEventListener("click", getVCsChecked);
 };
 
 var listVCs = [];
 function getVCsChecked()
 {
+	console.log("Tout debut !");
 	browser.storage.local.remove('listVCs');
 	var checkboxes = document.getElementsByClassName('vcAvailable');
 	var vals = [];
@@ -14,6 +16,7 @@ function getVCsChecked()
 	vcFromStorage.then(function(settings) {
 		for (var i=0, n=checkboxes.length;i<n;i++) 
 		{
+			console.log(i);
 			if (checkboxes[i].checked) 
 			{
 			    vals.push(checkboxes[i].id);

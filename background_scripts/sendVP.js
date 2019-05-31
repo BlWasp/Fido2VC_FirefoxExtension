@@ -62,19 +62,19 @@ function makeVP() {
 
       const credentialID = browser.storage.local.get("spStorage");
       credentialID.then(function(cred) {
-      	console.log(cred.spStorage[0].credential_id);
+        var credID = cred.spStorage[0].credential_id;
+      	console.log(credID);
         var signatureOptions = {challenge: hashVP,
                                 timeout: 60000,
-                                allowCredentials: [{ type: "public-key", id: cred.spStorage[0].credential_id }]
+                                allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
                                 };
         navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
+          console.log("get OK");
           proof['hash'] = credentials.response['signature'];
           payload['proof'] = proof;
           b64Payload = utf8_to_b64(JSON.stringify(payload));
           console.log("Signature done !");
           return b64Payload;
-        }).catch(function (err) {
-              console.log("Error navigator.credentials.get, wrong credentialID...");
         });
       })
     });
