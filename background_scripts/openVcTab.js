@@ -8,22 +8,6 @@ function notify(message) {
 			spStorage.spStorage[0]['urlToPOST'] = message.buttonVP;
 			browser.storage.local.set(spStorage);
 		});
-		browser.tabs.create({url: "/TabVCs/exemple.html"});
+		browser.tabs.create({url: "/TabVCs/tabVC.html"});
 	}
-}
-
-function sendViaXHR() {
-  var js = {
-  	"titre" : "FIFA19"
-  };
-  let url = "https://example.com:5000/sendVP";
-  var xhrVP = new XMLHttpRequest();
-  xhrVP.open("POST", url, true);
-
-  xhrVP.onreadystatechange = function() {
-    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-      console.log("Request send");
-    }
-  }
-  xhrVP.send(js);
 }

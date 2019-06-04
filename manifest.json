@@ -10,6 +10,12 @@
     "48": "icons/vc-48.png"
   },
 
+  "browser_specific_settings": {
+  	"gecko": {
+  		"id": "fidoVC@example.com"
+  	}
+  },
+
   "background": {
     "scripts": 
     ["background_scripts/storageFromIdps.js",
@@ -29,10 +35,13 @@
     }
   ],
 
-  "browser_action": {
-    "default_icon": "icons/vc-32.png",
-    "default_popup": "popup/policyClick.html"
-  },
+  // "browser_action": {
+  //   "default_icon""browser_action": {
+  //   "default_icon": "icons/vc-32.png",
+  //   "default_popup": "popup/policyClick.html"
+  // },: "icons/vc-32.png",
+  //   "default_popup": "popup/policyClick.html"
+  // },
 
   "permissions": [
     "<all_urls>",

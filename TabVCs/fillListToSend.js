@@ -1,14 +1,20 @@
+/*
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
+*/
+
 function initElement()
 {
-	console.log("La c'est normal....");
 	var p = document.getElementById("makeVP");
 	p.addEventListener("click", getVCsChecked);
 };
 
+/*
+	Read the checkboxes selected and add the VCs in the listVCs storage
+*/
 var listVCs = [];
 function getVCsChecked()
 {
-	console.log("Tout debut !");
 	browser.storage.local.remove('listVCs');
 	var checkboxes = document.getElementsByClassName('vcAvailable');
 	var vals = [];
@@ -33,6 +39,7 @@ function getVCsChecked()
 	});
 	window.close();
 }
+
 
 function storeList(vc) {
 	if (!vc.listVCs) {

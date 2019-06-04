@@ -128,8 +128,8 @@ async function checkStrucValidity(structToAnalyse,type) {
 			let headerUTF = JSON.parse(b64_to_utf8(header));
 			let pem = headerUTF.kid;
 			// fetch the part of the PEM string between header and footer
-		    const pemHeader = "-----BEGIN PUBLIC KEY-----";
-			const pemFooter = "-----END PUBLIC KEY-----";
+		    const pemHeader = "-----BEGIN RSA PUBLIC KEY-----";
+			const pemFooter = "-----END RSA PUBLIC KEY-----";
 			const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
 			var pkey = pemContents.replace("\\n","");
 			await window.crypto.subtle.importKey(

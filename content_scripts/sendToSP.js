@@ -1,3 +1,8 @@
+/*
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
+*/
+
 var btn = document.getElementById("sendVP");
 
 function openRequestedPopup() {
