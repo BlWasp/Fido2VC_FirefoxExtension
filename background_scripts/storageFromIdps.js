@@ -120,6 +120,7 @@ async function checkStrucValidity(structToAnalyse,type) {
 			let proof = parts[2];
 			let data = header.concat('.',payload);
 			let payloadUTF = JSON.parse(b64_to_utf8(payload));
+			console.log("Payload " + JSON.stringify(payloadUTF));
 			if (!parseVC(JWTtoJSLD(payloadUTF))) {
 				console.log("Problem with VC parser");
 				return false;

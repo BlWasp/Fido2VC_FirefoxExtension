@@ -63,23 +63,24 @@ function makeVP() {
 			b64Payload = utf8_to_b64(JSON.stringify(payload));
 			sendViaXHR(b64Payload);
 
-	      /*const credentialID = browser.storage.local.get("spStorage");
-	      credentialID.then(function(cred) {
-	        var credID = cred.spStorage[0].credential_id;
-	      	console.log(credID);
-	        var signatureOptions = {challenge: hashVP,
-	                                timeout: 60000,
-	                                allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
-	                                };
-	        navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
-	          console.log("get OK");
-	          proof['hash'] = credentials.response['signature'];
-	          payload['proof'] = proof;
-	          b64Payload = utf8_to_b64(JSON.stringify(payload));
-	          console.log("Signature done !");
-	          return b64Payload;
-	        });
-	      });*/
+			// const credentialID = browser.storage.local.get("spStorage");
+			// credentialID.then(function(cred) {
+			// 	var credID = cred.spStorage[0].credential_id;
+			// 	console.log(credID);
+			// 	var signatureOptions = {challenge: hashVP,
+			// 							timeout: 60000,
+			// 							allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
+			// 							};
+			// 	navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
+			// 		console.log("get OK");
+			// 		proof['hash'] = credentials.response['signature'];
+			// 		payload['proof'] = proof;
+			// 		b64Payload = utf8_to_b64(JSON.stringify(payload));
+			// 		console.log("Signature done !");
+					
+			// 		sendViaXHR(b64Payload);
+			// 	});
+			// });
 		});
 	});
 }
