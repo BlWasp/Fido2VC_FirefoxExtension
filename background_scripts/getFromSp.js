@@ -78,9 +78,9 @@ function onError(e) {
 /*
 	Win logger
 */
-// function onGot(item) {
-// 	console.log(item);
-// }
+function onGot(item) {
+	console.log(item);
+}
 
 /*
 	The Service Provider give a JSON structure with the Policy in DNF or CNF
@@ -232,7 +232,8 @@ function storageFromSp(settings,struct) {
 function getResp(request){
 	browser.webRequest.onBeforeRequest.removeListener(getResp);
 	var xmlHttp = new XMLHttpRequest();
-	var respURL = request.url;
+	var tempURL = request.url
+	var respURL = tempURL.concat("/policy");
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
             console.log(xmlHttp.response);
@@ -243,7 +244,7 @@ function getResp(request){
             // extractType(xmlHttp.response['authz_policy']);
             browser.webRequest.onBeforeRequest.addListener(
  				getResp,
- 				{urls: ["https://*/policy"]}
+ 				{urls: ["https://*/policyListener"]}
  			);
 
  			const testEx = browser.storage.local.get("spStorage");
@@ -267,7 +268,7 @@ function getResp(request){
 */
 browser.webRequest.onBeforeRequest.addListener(
 	getResp,
-	{urls: ["https://*/policy"]}
+	{urls: ["https://*/policyListener"]}
 );
 /*
 	End of main part

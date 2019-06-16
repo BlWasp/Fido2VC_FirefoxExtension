@@ -39,7 +39,9 @@ function getRespFromIDP(request){
 	browser.webRequest.onBeforeRequest.removeListener(getRespFromIDP);
 	var xmlHttp = new XMLHttpRequest();
 	//let reqURL = "https://example.com:5000/verifiable_credentials";
-	let reqURL = request.url;
+	let tempURL = request.url;
+	let reqURL = tempURL.concat("/verifiable_credentials");
+	// console.log(reqURL);
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
         	structJSONfromURL = xmlHttp.response;
@@ -57,7 +59,7 @@ function getRespFromIDP(request){
 
             browser.webRequest.onBeforeRequest.addListener(
  				getRespFromIDP,
- 				{urls: ["https://*/verifiable_credentials"]}
+ 				{urls: ["https://*/verifiable_credentials_print"]}
  			);
         }
     }
@@ -120,7 +122,7 @@ async function checkStrucValidity(structToAnalyse,type) {
 			let proof = parts[2];
 			let data = header.concat('.',payload);
 			let payloadUTF = JSON.parse(b64_to_utf8(payload));
-			console.log("Payload " + JSON.stringify(payloadUTF));
+			// console.log("Payload " + JSON.stringify(payloadUTF));
 			if (!parseVC(JWTtoJSLD(payloadUTF))) {
 				console.log("Problem with VC parser");
 				return false;
@@ -272,7 +274,7 @@ function addStorageToSend(settings) {
 
 browser.webRequest.onBeforeRequest.addListener(
 	getRespFromIDP,
-	{urls: ["https://*/verifiable_credentials"]}
+	{urls: ["https://*/verifiable_credentials_print"]}
 );
 
 /*

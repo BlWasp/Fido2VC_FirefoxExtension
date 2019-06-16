@@ -1,3 +1,9 @@
+/*
+	Copyright: Copyright (c) 2019 University of Toulouse, France and
+	University of Kent, UK
+*/
+
+
 browser.runtime.onMessage.addListener(notify);
 
 function notify(message) {
