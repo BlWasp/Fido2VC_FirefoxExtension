@@ -28,7 +28,3 @@ function openNotification() {
 btn.onclick = function() {
   	openNotification();
 }
-
-
-
-

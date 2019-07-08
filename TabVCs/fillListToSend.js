@@ -15,7 +15,7 @@ function initElement()
 var listVCs = [];
 function getVCsChecked()
 {
-	browser.storage.local.remove('listVCs');
+	// browser.storage.local.remove('listVCs');
 	var checkboxes = document.getElementsByClassName('vcAvailable');
 	var vals = [];
 	const vcFromStorage = browser.storage.local.get('storageToSend');

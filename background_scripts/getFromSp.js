@@ -247,8 +247,8 @@ function getResp(request){
  				{urls: ["https://*/policyListener"]}
  			);
 
- 			const testEx = browser.storage.local.get("spStorage");
-		    testEx.then(onGot, onError);
+ 			// const testEx = browser.storage.local.get("spStorage");
+		  //   testEx.then(onGot, onError);
         }
     }
 	xmlHttp.open("GET", respURL, true); // true for asynchronous 

@@ -31,7 +31,7 @@ function hexString(buffer) {
   Return an array with the Base64 VP and the hash signature
 */
 var toReturn;
-function makeVP() {
+async function makeVP() {
 	var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
 		"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
 		"aud": "did:example:4a57546973436f6f6c4a4a57573",
@@ -48,39 +48,39 @@ function makeVP() {
 		}
 	};
 	const getListToSend = browser.storage.local.get('listVCs');
-	getListToSend.then(function(vc) {
+	getListToSend.then(async function(vc) {
 		for (var loopVC of vc['listVCs']) {
 			payload['vp']['verifiableCredential'].push(loopVC);
 		}
 		var b64Payload = utf8_to_b64(JSON.stringify(payload));
 
-		window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(function(hashVP) {
+		await window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(async function(hashVP) {
 			var proof = {};
 			proof['type'] = "externalHash";
 			proof['created'] = new Date();
-			proof['hash'] = hexString(hashVP);
-			payload['proof'] = proof;
-			b64Payload = utf8_to_b64(JSON.stringify(payload));
-			sendViaXHR(b64Payload);
+			// proof['hash'] = hexString(hashVP);
+			// payload['proof'] = proof;
+			// b64Payload = utf8_to_b64(JSON.stringify(payload));
+			// sendViaXHR(b64Payload);
 
-			// const credentialID = browser.storage.local.get("spStorage");
-			// credentialID.then(function(cred) {
-			// 	var credID = cred.spStorage[0].credential_id;
-			// 	console.log(credID);
-			// 	var signatureOptions = {challenge: hashVP,
-			// 							timeout: 60000,
-			// 							allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
-			// 							};
-			// 	navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
-			// 		console.log("get OK");
-			// 		proof['hash'] = credentials.response['signature'];
-			// 		payload['proof'] = proof;
-			// 		b64Payload = utf8_to_b64(JSON.stringify(payload));
-			// 		console.log("Signature done !");
+			const credentialID = browser.storage.local.get("spStorage");
+			credentialID.then(async function(cred) {
+				var credID = cred.spStorage[0].credential_id;
+				console.log(credID);
+				var signatureOptions = {challenge: hashVP,
+										timeout: 60000,
+										allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
+										};
+				await navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
+					console.log("get OK");
+					proof['hash'] = credentials.response['signature'];
+					payload['proof'] = proof;
+					b64Payload = utf8_to_b64(JSON.stringify(payload));
+					console.log("Signature done !");
 					
-			// 		sendViaXHR(b64Payload);
-			// 	});
-			// });
+					sendViaXHR(b64Payload);
+				});
+			});
 		});
 	});
 }
@@ -114,6 +114,9 @@ function sendViaXHR(data) {
 				alert("VP sent with success !");
 			}
 		}
+		browser.storage.local.remove('storageToSend');
+		browser.storage.local.remove('listVCs');
+		browser.storage.local.remove('spStorage');
 		xhrVP.send(data);
 	});
 }

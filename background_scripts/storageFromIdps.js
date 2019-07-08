@@ -130,9 +130,17 @@ async function checkStrucValidity(structToAnalyse,type) {
 			console.log("VC parse OK");
 			let headerUTF = JSON.parse(b64_to_utf8(header));
 			let pem = headerUTF.kid;
+			// console.log(pem);
 			// fetch the part of the PEM string between header and footer
-		    const pemHeader = "-----BEGIN RSA PUBLIC KEY-----";
-			const pemFooter = "-----END RSA PUBLIC KEY-----";
+			var  pemHeader;
+			var pemFooter;
+			if (pem.search("-----BEGIN RSA PUBLIC KEY-----") == -1) {
+				pemHeader = "-----BEGIN PUBLIC KEY-----";
+				pemFooter = "-----END PUBLIC KEY-----";
+			} else {
+				pemHeader = "-----BEGIN RSA PUBLIC KEY-----";
+				pemFooter = "-----END RSA PUBLIC KEY-----";
+			}
 			const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
 			var pkey = pemContents.replace("\\n","");
 			await window.crypto.subtle.importKey(
@@ -145,14 +153,15 @@ async function checkStrucValidity(structToAnalyse,type) {
 				    true,
 				    ["verify"]
 			).then(async function(publicKey) {
-			    await window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,_base64ToArrayBuffer(proof),str2ab(data)).then(function(result) {
+			    await window.crypto.subtle.verify({name: "RSASSA-PKCS1-v1_5",},publicKey,_base64ToArrayBuffer(proof),str2ab(data)
+			    	).then(function(result) {
 					if (!result) {
-						console.log("Errrooooor crypto.....");
+						console.log("Error crypto...");
 						utfArray.splice(0,utfArray.length);
 						storageToSend.splice(0,storageToSend.length);
 						return result;
 					}
-					console.log("Good signature au bon endroit!");
+					console.log("Signature ok");
 					issuer = payloadUTF['vc']['issuer'];
 					storageToSend.push([payloadUTF['vc'],loopListVC]);
 					// console.log("Le storage to Send : " + storageToSend);
@@ -213,15 +222,16 @@ function verifySchema(schema,payload) {
 /*
 	Verify the structArrayHistory to check if the structure is not already present
 */
-function loopArray(structToFind) {
-	console.log(structArrayHistory.length);
-	for (struct in structArrayHistory) {
-		if (JSON.stringify(structArrayHistory[struct]) == JSON.stringify(structToFind)) {
-			return true;
-		}
-	}
-	return false;
-}
+// function loopArray(structToFind) {
+// 	console.log(structArrayHistory.length);
+// 	for (struct in structArrayHistory) {
+// 		if (JSON.stringify(structArrayHistory[struct]) == JSON.stringify(structToFind)) {
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
+
 /*
 	This 2 functions allow to store the VCs received from the issuers for history purpose
 */
@@ -292,7 +302,7 @@ function JWTtoJSLD(payload){
 	vc['issuer'] =  payload['iss'];
 	vc['credentialSubject']['id'] = payload['sub'];
 	vc['expirationDate'] = new Date(payload['exp']* 1000);
-	vc['issuanceDate'] = new Date(payload['iat']* 1000);
+	vc['issuanceDate'] = new Date(payload['nbf']* 1000);
 	return vc;
 }
 
