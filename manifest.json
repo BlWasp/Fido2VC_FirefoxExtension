@@ -45,17 +45,13 @@
 
   "permissions": [
     "<all_urls>",
-    "https://www.google.com/",
-    "https://fido/*",
-    "https://example.com/*",
     "webRequest",
     "webRequestBlocking",
     "storage",
     "tabHide",
     "tabs",
-    "browserSettings",
     "activeTab",
-    "contextMenus",
-    "notifications"
+    "notifications",
+    "nativeMessaging"
   ]
 }

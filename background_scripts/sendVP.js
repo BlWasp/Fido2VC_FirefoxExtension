@@ -25,17 +25,18 @@ function hexString(buffer) {
 	return hexCodes.join('');
 }
 
+
+var vpReadyToSign = {};
 /*
   Make a VP from VCs
   Hash the VP and sign it
   Return an array with the Base64 VP and the hash signature
 */
-var toReturn;
-async function makeVP() {
+function makeVP() {
 	var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
 		"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
 		"aud": "did:example:4a57546973436f6f6c4a4a57573",
-		"iat": "1541493724",
+		"nbf": "1541493724",
 		"exp": "1573029723",
 		"nonce": "343s$FSFDa-",
 		"vp": {
@@ -48,38 +49,49 @@ async function makeVP() {
 		}
 	};
 	const getListToSend = browser.storage.local.get('listVCs');
-	getListToSend.then(async function(vc) {
+	console.log(getListToSend);
+	getListToSend.then(function(vc) {
 		for (var loopVC of vc['listVCs']) {
 			payload['vp']['verifiableCredential'].push(loopVC);
 		}
 		var b64Payload = utf8_to_b64(JSON.stringify(payload));
 
-		await window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(async function(hashVP) {
+		window.crypto.subtle.digest('SHA-256', getStructEncoding(b64Payload)).then(function(hashVP) {
 			var proof = {};
 			proof['type'] = "externalHash";
 			proof['created'] = new Date();
-			// proof['hash'] = hexString(hashVP);
-			// payload['proof'] = proof;
-			// b64Payload = utf8_to_b64(JSON.stringify(payload));
-			// sendViaXHR(b64Payload);
+			payload['proof'] = proof;
 
 			const credentialID = browser.storage.local.get("spStorage");
-			credentialID.then(async function(cred) {
-				var credID = cred.spStorage[0].credential_id;
-				console.log(credID);
-				var signatureOptions = {challenge: hashVP,
-										timeout: 60000,
-										allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
-										};
-				await navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
-					console.log("get OK");
-					proof['hash'] = credentials.response['signature'];
-					payload['proof'] = proof;
-					b64Payload = utf8_to_b64(JSON.stringify(payload));
-					console.log("Signature done !");
+			credentialID.then(function(cred) {
+				let credID = cred.spStorage[0].credential_id;
+				let sendJSON = {"hash": hexString(hashVP), "cred": credID, "rp": "example.com"};
+				port.postMessage(sendJSON);
+
+				console.log("Struct send to sign");
+				vpReadyToSign = payload;
+
+				// proof['hash'] = "Test";
+				// payload['proof'] = proof;
+				// b64Payload = utf8_to_b64(JSON.stringify(payload));
 					
-					sendViaXHR(b64Payload);
-				});
+				// sendViaXHR(b64Payload);
+
+				// var signatureOptions = {challenge: hashVP,
+				// 						timeout: 60000,
+				// 						allowCredentials: [{ type: "public-key", id: _base64ToArrayBuffer(credID) }]
+				// 						};
+				// navigator.credentials.get({"publicKey" : signatureOptions}).then(function(credentials) { 
+				// 	console.log("get OK");
+				// 	proof['hash'] = credentials.response['signature'];
+				// 	payload['proof'] = proof;
+				// 	b64Payload = utf8_to_b64(JSON.stringify(payload));
+				// 	console.log("Signature done !");
+					
+				// 	sendViaXHR(b64Payload);
+				// }).catch(function(err) {
+			 //    	console.error(err);
+				// });
 			});
 		});
 	});
@@ -121,4 +133,33 @@ function sendViaXHR(data) {
 	});
 }
 
-makeVP();
+
+/*
+	When the application send the signature, it catch here
+*/
+function receiveMess(mess) {
+	console.log("Received : " + mess);
+	vpReadyToSign['proof']['hash'] = mess;
+	console.log(vpReadyToSign);
+	let b64Payload = utf8_to_b64(JSON.stringify(vpReadyToSign));
+	sendViaXHR(b64Payload);
+}
+
+/*
+	Init the connection with Python application for signing purpose
+*/
+function init() {
+	var btn = document.getElementById("makeVP");
+	btn.addEventListener("click", makeVP);
+}
+
+
+/*
+	Main part
+*/
+var port = browser.runtime.connectNative("fido2VC_app");
+port.onMessage.addListener((response) => {
+		receiveMess(response);
+});
+
+init();

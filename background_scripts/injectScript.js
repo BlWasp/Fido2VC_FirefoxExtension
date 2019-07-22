@@ -8,7 +8,7 @@ browser.runtime.onMessage.addListener(sign);
 function sign(request) {
 	if(request.greeting == 'send VP') {
 		browser.tabs.executeScript({
-			file: "/background_scripts/sendVP.js"
+			file: "/content_scripts/sendVP.js"
 		});
 	}
 }
