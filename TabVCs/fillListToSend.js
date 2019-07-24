@@ -34,8 +34,6 @@ function getVCsChecked()
 		storeListVC.then(function(vc) {
 			storeList(vc);
 		});
-		// document.write("<div> " + vals  + " </div>");
-		// document.write("<div> " + listVCs  + " </div>");
 		document.write("Envoi en cours...")
 	});
 	window.close();

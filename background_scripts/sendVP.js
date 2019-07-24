@@ -32,9 +32,8 @@ var vpReadyToSign = {};
   Hash the VP and sign it
   Return an array with the Base64 VP and the hash signature
 */
-function makeVP() {
-	var payload = {"iss": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-		"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
+function makeVP(port) {
+	var payload = {"jti": "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5",
 		"aud": "did:example:4a57546973436f6f6c4a4a57573",
 		"nbf": "1541493724",
 		"exp": "1573029723",
@@ -49,7 +48,7 @@ function makeVP() {
 		}
 	};
 	const getListToSend = browser.storage.local.get('listVCs');
-	console.log(getListToSend);
+	// console.log(getListToSend);
 	getListToSend.then(function(vc) {
 		for (var loopVC of vc['listVCs']) {
 			payload['vp']['verifiableCredential'].push(loopVC);
@@ -97,15 +96,15 @@ function makeVP() {
 	});
 }
 
-function _base64ToArrayBuffer(base64) {
-	var binary_string =  window.atob(base64.replace(/_/g, '/').replace(/-/g, '+'));
-	var len = binary_string.length;
-	var bytes = new Uint8Array(len);
-	for (var i = 0; i < len; i++)        {
-		bytes[i] = binary_string.charCodeAt(i);
-	}
-	return bytes.buffer;
-}
+// function _base64ToArrayBuffer(base64) {
+// 	var binary_string =  window.atob(base64.replace(/_/g, '/').replace(/-/g, '+'));
+// 	var len = binary_string.length;
+// 	var bytes = new Uint8Array(len);
+// 	for (var i = 0; i < len; i++)        {
+// 		bytes[i] = binary_string.charCodeAt(i);
+// 	}
+// 	return bytes.buffer;
+// }
 
 
 /*
@@ -148,18 +147,18 @@ function receiveMess(mess) {
 /*
 	Init the connection with Python application for signing purpose
 */
-function init() {
-	var btn = document.getElementById("makeVP");
-	btn.addEventListener("click", makeVP);
+function init(request) {
+	if(request.greeting == 'send VP') {
+		var port = browser.runtime.connectNative("fido2VC_app");
+		port.onMessage.addListener((response) => {
+				receiveMess(response);
+		});
+		makeVP(port);
+	}
 }
 
 
 /*
 	Main part
 */
-var port = browser.runtime.connectNative("fido2VC_app");
-port.onMessage.addListener((response) => {
-		receiveMess(response);
-});
-
-init();
+browser.runtime.onMessage.addListener(init);

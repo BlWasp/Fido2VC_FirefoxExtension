@@ -21,7 +21,7 @@
     ["background_scripts/storageFromIdps.js",
     "background_scripts/getFromSp.js",
     "background_scripts/openVcTab.js",
-    "background_scripts/injectScript.js"]
+    "background_scripts/sendVP.js"]
   },
 
   "content_scripts": [
