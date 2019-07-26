@@ -1,0 +1,7 @@
+{
+	"name": "fido2VC_app",
+	"description": "An desktop application for signature of Verifiable Credentials provide by the extension",
+	"path": "/home/guillaume/Dropbox/Cours/Stage/Fido2VC_FirefoxExtension/fidoApplication/fido2VC_app.py",
+	"type": "stdio",
+	"allowed_extensions": ["fidoVC@example.com"]
+}
