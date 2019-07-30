@@ -9,6 +9,7 @@ Description
 
 It is a Firefox extension that allow you to use Verifiable Credentials with Fido2.
 Verifiable Credentials (VCs) are developed by the W3C and you can find all the informations about it on this page :
+	
 	The Verifiable Credentials : https://www.w3.org/TR/vc-data-model/
 
 
@@ -17,6 +18,7 @@ Application installation
 
 You have to move the `fido2VC_app.json` into the `/usr/lib/mozilla/native-messaging-hosts` folder (create it if it doesn't exist).
 For more informations about it, please consulte the MDN page about Native Messaging.
+	
 	Native Messaging : https://developer.mozilla.org/fr/docs/Mozilla/Add-ons/WebExtensions/Native_messaging
 
 
